@@ -1,0 +1,33 @@
+{
+  "name": "m-ltaief-website",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "create-admin": "node --env-file=.env scripts/create-admin.mjs",
+    "db:migrate": "prisma db execute --schema prisma/schema.prisma --file supabase/migrations/0001_init.sql && prisma db execute --schema prisma/schema.prisma --file supabase/seed.sql && prisma db execute --schema prisma/schema.prisma --file supabase/migrations/0002_profile.sql && prisma db execute --schema prisma/schema.prisma --file supabase/seed_about.sql"
+  },
+  "dependencies": {
+    "@netlify/plugin-nextjs": "^5.15.13",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.2",
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.17",
+    "@types/node": "22.19.15",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.6",
+    "postcss": "8.5.8",
+    "prisma": "^6.19.3",
+    "tailwindcss": "4.1.17",
+    "typescript": "5.9.3"
+  }
+}

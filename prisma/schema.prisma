@@ -1,0 +1,13 @@
+// Prisma is used here purely as a connection/CLI tool to run the hand-written
+// SQL in supabase/migrations and supabase/seed*.sql directly against the
+// database (see `npm run db:migrate`). The schema itself — tables, RLS
+// policies, storage bucket policies — is authored as raw SQL, not as Prisma
+// models, because Supabase's row-level security and storage policies aren't
+// expressible in Prisma's schema DSL. The app talks to the database through
+// @supabase/supabase-js (src/lib/supabase/), not through a generated Prisma
+// Client, so no `generator` block or models are defined here.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme {
+  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --color-paper: #ffffff;
+  --color-ink: #000000;
+  --color-muted: #000000;
+  --color-border: #e8e8e8;
+  --color-accent: #ff50ff;
+  --color-accent-bright: #ff50ff;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+::selection {
+  background: #ff50ff;
+  color: #000;
+}
+
+.divider {
+  height: 1px;
+  background: #e8e8e8;
+  width: 100%;
+}
+
+/* Cargo image sizing — width capped at 1000px, height capped at 1280px,
+   reproducing lydiaourahmane.com (1000×666, 1000×1290, 960×1280, 853×1280).
+   Images stay inline and are separated by <br>, exactly as in her markup, so the
+   gap between stacked pictures is produced by the line box (descender + leading). */
+.cargo-media {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 1280px;
+}
+
+/* Lydia/Cargo project writing: the same plain Helvetica text register used for
+   exhibition description, essays, and notes on the Solar Cry project page. */
+.cargo-reading {
+  max-width: 1000px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.cargo-reading p + p {
+  margin-top: 1.45em;
+}
+
+/* Lydia/Cargo gallery: every photograph is an individual inline work,
+   separated only by the native <br> line rhythm. */
+.cargo-gallery {
+  margin-top: 1.45em;
+}
+
+/* Large Cargo film sheet — aligned with the same 1000px media field as the
+   photographs above. Two wide frames give each moving-image work room to read. */
+.cargo-video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 6px 0;
+}
+
+.cargo-video-grid iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+/* The fifth film begins a final row at the same large card width. */
+.cargo-video-grid iframe:last-child:nth-child(5) {
+  grid-column: 1;
+}
+
+@media (max-width: 560px) {
+  .cargo-video-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Quiet visual index — first image from every project, in the Cargo column. */
+.cargo-project-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 8px;
+}
+
+.cargo-project-preview {
+  min-width: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.cargo-project-preview img,
+.cargo-project-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 5px;
+  object-fit: cover;
+  background: #ededed;
+}
+
+.cargo-project-preview span,
+.cargo-project-preview small {
+  display: block;
+}
+
+.cargo-project-preview small {
+  margin-top: 2px;
+  color: #777;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+/* One uniform Cargo CV scale: year, project, venue, award and residency
+   credits share the same regular-weight line treatment. */
+.cargo-cv-project-list,
+.cargo-cv-list {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #111;
+}
+
+.cargo-cv-project-list li,
+.cargo-cv-list li {
+  min-width: max-content;
+}
+
+.cargo-cv-year,
+.cargo-cv-project-title,
+.cargo-cv-project-detail {
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.cargo-cv-year {
+  display: inline;
+  width: auto;
+  margin-right: 5px;
+  color: #777;
+}
+
+.cargo-cv-project-title,
+.cargo-cv-project-detail {
+  color: inherit;
+}
+
+/* Lydia/Cargo-style page paging: quiet grey arrows directly under the index. */
+.cargo-project-pager {
+  position: fixed;
+  z-index: 30;
+  right: 24px;
+  bottom: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.cargo-project-pager-button {
+  color: #999;
+  transition: color 150ms ease;
+}
+
+.cargo-project-pager-button:hover:not(:disabled) {
+  color: #000;
+}
+
+.cargo-project-pager-button:disabled {
+  cursor: default;
+  color: #d5d5d5;
+}
+
+@media (max-width: 640px) {
+  .cargo-project-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cargo-project-pager {
+    right: 16px;
+    bottom: 16px;
+  }
+}
