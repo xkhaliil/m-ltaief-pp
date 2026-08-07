@@ -13,7 +13,7 @@ without touching any code.
 
 ## 2. Create the database tables
 
-Four SQL files need to run, in order. Pick whichever of these is easier:
+Five SQL files need to run, in order. Pick whichever of these is easier:
 
 ### Option A — one command (needs `DATABASE_URL`, see step 4)
 
@@ -38,6 +38,9 @@ Open **SQL Editor** in the Supabase dashboard, and run these files **in this ord
 3. [`supabase/migrations/0002_profile.sql`](supabase/migrations/0002_profile.sql) — creates
    the `profile` table (bio + the four About/CV lists).
 4. [`supabase/seed_about.sql`](supabase/seed_about.sql) — inserts the existing bio and CV entries.
+5. [`supabase/migrations/0003_storage_usage.sql`](supabase/migrations/0003_storage_usage.sql) —
+   adds a function the admin portal uses to check how much storage is left, so it can switch
+   to saving images locally before an upload fails, not after.
 
 > Note: the original site's images (`public/images/works/...`) are not included in this
 > project folder. The seed keeps those paths as-is; if you have the original image files,
@@ -98,10 +101,10 @@ npm run dev
 
 Visit `http://localhost:3000/admin/login` and sign in with the account from step 5.
 
-For production (Netlify, Vercel, or any host), add `NEXT_PUBLIC_SUPABASE_URL` and
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` in that host's dashboard (**Site configuration →
-Environment variables** on Netlify). The service role key is only needed locally to run
-`npm run create-admin` — don't add it to your hosting provider's environment variables.
+For production, add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as
+environment variables on whatever host runs the app. The service role key and
+`DATABASE_URL` are only needed locally (for `npm run create-admin` and
+`npm run db:migrate`) — don't add them to your hosting provider's environment variables.
 
 ## 7. Everyday editing
 
@@ -111,7 +114,7 @@ plus an **Edit About / CV** link.
 
 - **Add new project** — creates a new entry; pick which menu section it belongs to and
   where it should sit in the order.
-- **Edit** — change the title, info lines (venue/date), body paragraphs, links, Vimeo IDs,
+- **Edit** — change the title, info lines (venue/date), body paragraphs, links, video links (Vimeo or YouTube),
   credits, and gallery images.
 - **Gallery images** — click "+ Add image" to upload directly from your computer; use the
   ↑ / ↓ / ✕ buttons to reorder or remove.

@@ -159,11 +159,11 @@ export function ProjectForm({ project }: { project: Project | null }) {
         />
 
         <StringListEditor
-          label="Vimeo video IDs"
-          hint="Just the number from the vimeo.com link, e.g. 1215280534."
+          label="Video links"
+          hint="A Vimeo or YouTube link (e.g. https://vimeo.com/1215280534), or just the Vimeo ID (e.g. 1215280534)."
           items={videos}
           onChange={setVideos}
-          placeholder="1215280534"
+          placeholder="https://vimeo.com/1215280534"
         />
 
         <label className="block">

@@ -217,12 +217,76 @@ function Head({ e }: { e: Entry }) {
   );
 }
 
+type VideoEmbed = { src: string; label: string };
+
+// Accepts a bare Vimeo ID (existing data), a full Vimeo URL, or a full
+// YouTube URL, and resolves it to an embeddable iframe src. Anything else is
+// passed through as-is, in case someone pastes an already-formed embed URL.
+function parseVideoEmbed(raw: string): VideoEmbed | null {
+  const value = raw.trim();
+  if (!value) return null;
+
+  if (/^\d+$/.test(value)) {
+    return {
+      src: `https://player.vimeo.com/video/${value}?color=ff50ff&title=0&byline=0&portrait=0`,
+      label: `Vimeo ${value}`,
+    };
+  }
+
+  try {
+    const url = new URL(value);
+    const host = url.hostname.replace(/^www\./, "");
+
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const id = url.pathname.split("/").filter(Boolean).pop();
+      if (id) {
+        return {
+          src: `https://player.vimeo.com/video/${id}?color=ff50ff&title=0&byline=0&portrait=0`,
+          label: `Vimeo ${id}`,
+        };
+      }
+    }
+
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "youtu.be") {
+      const id = url.searchParams.get("v") ?? url.pathname.split("/").filter(Boolean).pop();
+      if (id) {
+        return { src: `https://www.youtube-nocookie.com/embed/${id}`, label: `YouTube ${id}` };
+      }
+    }
+  } catch {
+    // Not a parseable URL — fall through and use it as-is below.
+  }
+
+  return { src: value, label: value };
+}
+
+function VideoGrid({ videos, title }: { videos: string[]; title: string }) {
+  const embeds = videos
+    .map(parseVideoEmbed)
+    .filter((embed): embed is VideoEmbed => embed !== null);
+
+  if (!embeds.length) return null;
+
+  return (
+    <div className="cargo-video-grid">
+      {embeds.map((embed, i) => (
+        <iframe
+          key={`${embed.src}-${i}`}
+          src={embed.src}
+          allow="autoplay; fullscreen; picture-in-picture"
+          title={`${title} — ${embed.label}`}
+        />
+      ))}
+    </div>
+  );
+}
+
 function EntryPage({ e }: { e: Entry }) {
   const pics = galleryFor(e);
+  const films = e.videos ?? [];
 
   if (e.id === "i-hear") {
     const [lead, ...gallery] = pics;
-    const films = e.videos ?? [];
 
     return (
       <article>
@@ -250,18 +314,7 @@ function EntryPage({ e }: { e: Entry }) {
           </div>
         ) : null}
 
-        {films.length ? (
-          <div className="cargo-video-grid">
-            {films.map((id) => (
-              <iframe
-                key={id}
-                src={`https://player.vimeo.com/video/${id}?color=ff50ff&title=0&byline=0&portrait=0`}
-                allow="autoplay; fullscreen; picture-in-picture"
-                title={`I Hear The Old Sound of the World's Future — ${id}`}
-              />
-            ))}
-          </div>
-        ) : null}
+        <VideoGrid videos={films} title={e.title} />
 
         {e.meta ? <p className="mt-[1.45em]">{e.meta}</p> : null}
       </article>
@@ -291,6 +344,8 @@ function EntryPage({ e }: { e: Entry }) {
           ))}
         </div>
       ) : null}
+
+      <VideoGrid videos={films} title={e.title} />
 
       {e.meta ? <p className="mt-[0.5em]">{e.meta}</p> : null}
     </article>

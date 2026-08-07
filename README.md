@@ -10,8 +10,6 @@ changes needed to add or update content.
 - [`SUPABASE_SETUP.md`](SUPABASE_SETUP.md) — one-time setup: create the Supabase
   project, load the existing content, create the admin login, and day-to-day use
   of `/admin`.
-- [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md) — publishing the site (GitHub,
-  Netlify, custom domain).
 
 ## Local development
 
@@ -20,6 +18,13 @@ npm install
 cp .env.local.example .env   # then fill in your Supabase values
 npm run dev
 ```
+
+## Deploying
+
+This is a standard Next.js app (`npm run build && npm run start`) — deploy it on
+whatever host you prefer. Set `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` as environment variables there; see
+[`SUPABASE_SETUP.md`](SUPABASE_SETUP.md) for the rest.
 
 ## Key files
 
@@ -30,10 +35,10 @@ npm run dev
 | `src/app/admin/` | The login-protected content editor |
 | `src/proxy.ts` | Guards `/admin/*` routes, requires a signed-in Supabase user |
 | `src/lib/supabase/` | Supabase client helpers (browser, server, public/anon) |
+| `src/lib/image-compress.ts` | Resizes/re-encodes gallery images in-browser before upload |
 | `scripts/create-admin.mjs` | `npm run create-admin` — creates/resets the one admin login |
 | `prisma/schema.prisma` | Connection config used by `npm run db:migrate` to run the SQL below |
 | `supabase/migrations/0001_init.sql` | `projects` table schema, access rules, image storage bucket |
 | `supabase/seed.sql` | The site's existing projects, as insertable SQL |
 | `supabase/migrations/0002_profile.sql` | `profile` table schema (bio + About/CV lists) |
 | `supabase/seed_about.sql` | The site's existing bio and CV entries, as insertable SQL |
-| `netlify.toml` | Netlify deployment configuration |
