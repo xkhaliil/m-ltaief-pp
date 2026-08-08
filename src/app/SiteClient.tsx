@@ -170,8 +170,17 @@ function CvProjectList({ rows }: { rows: CvRow[] }) {
   );
 }
 
-function galleryFor(entry: Entry): string[] {
-  return entry.gallery ?? [];
+// The article body is an admin-ordered sequence of text/image blocks. For
+// places that just need a single representative image (index grid, category
+// summaries), prefer the first image actually placed in the article; fall
+// back to the upload pool if the article has no images placed yet.
+function thumbnailFor(entry: Entry): string | undefined {
+  const firstBlockImage = entry.content.find((b) => b.type === "image")?.src;
+  return firstBlockImage ?? entry.gallery[0];
+}
+
+function firstTextFor(entry: Entry): string {
+  return entry.content.find((b) => b.type === "text")?.text ?? "";
 }
 
 function Img({ src, alt }: { src: string; alt: string }) {
@@ -282,72 +291,27 @@ function VideoGrid({ videos, title }: { videos: string[]; title: string }) {
 }
 
 function EntryPage({ e }: { e: Entry }) {
-  const pics = galleryFor(e);
-  const films = e.videos ?? [];
-
-  if (e.id === "i-hear") {
-    const [lead, ...gallery] = pics;
-
-    return (
-      <article>
-        <Head e={e} />
-
-        {lead ? (
-          <div className="mt-[1.45em]">
-            <Img src={lead} alt={e.title} />
-          </div>
-        ) : null}
-
-        <div className="cargo-reading mt-[1.45em] space-y-[1.45em]">
-          {e.paragraphs.map((p, i) => (
-            <p key={i} className={i === 3 ? "whitespace-pre-line" : undefined}>
-              {p}
-            </p>
-          ))}
-        </div>
-
-        {gallery.length ? (
-          <div className="cargo-gallery mt-[1.45em]">
-            {gallery.map((src) => (
-              <Img key={src} src={src} alt={e.title} />
-            ))}
-          </div>
-        ) : null}
-
-        <VideoGrid videos={films} title={e.title} />
-
-        {e.meta ? <p className="mt-[1.45em]">{e.meta}</p> : null}
-      </article>
-    );
-  }
-
   return (
     <article>
       <Head e={e} />
 
-      {pics.length ? (
-        <div className="mt-[1.45em]">
-          <Img src={pics[0]} alt={e.title} />
-        </div>
-      ) : null}
-
-      <div className="cargo-reading mt-[1.45em] space-y-[1.45em]">
-        {e.paragraphs.map((p, i) => (
-          <p key={i}>{p}</p>
+      <div className="cargo-reading mt-[1.45em]">
+        {e.content.map((block, i) => (
+          <div key={i} className={i === 0 ? undefined : "mt-[1.45em]"}>
+            {block.type === "text" ? (
+              <p className={block.text.includes("\n") ? "whitespace-pre-line" : undefined}>
+                {block.text}
+              </p>
+            ) : (
+              <Img src={block.src} alt={e.title} />
+            )}
+          </div>
         ))}
       </div>
 
-      {pics.length > 1 ? (
-        <div className="mt-[1.45em]">
-          {pics.slice(1).map((src) => (
-            <Img key={src} src={src} alt={e.title} />
-          ))}
-        </div>
-      ) : null}
+      <VideoGrid videos={e.videos ?? []} title={e.title} />
 
-      <VideoGrid videos={films} title={e.title} />
-
-      {e.meta ? <p className="mt-[0.5em]">{e.meta}</p> : null}
+      {e.meta ? <p className="mt-[1.45em]">{e.meta}</p> : null}
     </article>
   );
 }
@@ -370,7 +334,7 @@ function ProjectsPage({
       <div className="cargo-project-preview-grid mt-[1.45em]">
         {data.projectIds.map((id) => {
           const entry = data.entries[id];
-          const lead = galleryFor(entry)[0];
+          const lead = thumbnailFor(entry);
           return (
             <button
               key={id}
@@ -466,8 +430,8 @@ function MotusPage({
             >
               <span className="font-bold">Caliban Cannibal</span>
             </button>
-            {galleryFor(caliban)[0] ? (
-              <Img src={galleryFor(caliban)[0]} alt="Caliban Cannibal, Motus" />
+            {thumbnailFor(caliban) ? (
+              <Img src={thumbnailFor(caliban)!} alt="Caliban Cannibal, Motus" />
             ) : null}
           </>
         ) : null}
@@ -480,8 +444,8 @@ function MotusPage({
             >
               <span className="font-bold">CALL ME X</span>
             </button>
-            {galleryFor(callMeX)[0] ? (
-              <Img src={galleryFor(callMeX)[0]} alt="Call Me X, Motus" />
+            {thumbnailFor(callMeX) ? (
+              <Img src={thumbnailFor(callMeX)!} alt="Call Me X, Motus" />
             ) : null}
           </>
         ) : null}
@@ -521,7 +485,7 @@ function LecturePerformancePage({
       <div className="mt-[1.45em] space-y-[1.45em]">
         {data.lectureIds.map((id) => {
           const entry = data.entries[id];
-          const lead = galleryFor(entry)[0];
+          const lead = thumbnailFor(entry);
           return (
             <section key={id}>
               <button
@@ -534,7 +498,7 @@ function LecturePerformancePage({
                 {entry.lines?.filter(Boolean).join(" · ")}
               </p>
               {lead ? <Img src={lead} alt={entry.title} /> : null}
-              <p className="mt-[0.5em]">{entry.paragraphs[0]}</p>
+              <p className="mt-[0.5em]">{firstTextFor(entry)}</p>
             </section>
           );
         })}
@@ -567,7 +531,7 @@ function WritingPublishingPage({
       <div className="mt-[1.45em] space-y-[1.45em]">
         {data.writingIds.map((id) => {
           const entry = data.entries[id];
-          const lead = galleryFor(entry)[0];
+          const lead = thumbnailFor(entry);
           return (
             <section key={id}>
               <button
@@ -580,7 +544,7 @@ function WritingPublishingPage({
                 {entry.lines?.filter(Boolean).join(" · ")}
               </p>
               {lead ? <Img src={lead} alt={entry.title} /> : null}
-              <p className="mt-[0.5em]">{entry.paragraphs[0]}</p>
+              <p className="mt-[0.5em]">{firstTextFor(entry)}</p>
             </section>
           );
         })}
@@ -613,7 +577,7 @@ function ArchivePage({
       <div className="mt-[1.45em] space-y-[1.45em]">
         {data.archiveIds.map((id) => {
           const entry = data.entries[id];
-          const lead = galleryFor(entry)[0];
+          const lead = thumbnailFor(entry);
           return (
             <section key={id}>
               <button
@@ -626,7 +590,7 @@ function ArchivePage({
                 {entry.lines?.filter(Boolean).join(" · ")}
               </p>
               {lead ? <Img src={lead} alt={entry.title} /> : null}
-              <p className="mt-[0.5em]">{entry.paragraphs[0]}</p>
+              <p className="mt-[0.5em]">{firstTextFor(entry)}</p>
             </section>
           );
         })}

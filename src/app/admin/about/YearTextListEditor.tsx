@@ -29,38 +29,38 @@ export function YearTextListEditor({ label, items, onChange }: Props) {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <span className="block text-muted text-[12px] font-bold">{label}</span>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-slate-900">{label}</span>
         <button
           type="button"
           onClick={() => onChange([{ year: "", text: "" }, ...items])}
-          className="text-[12px] text-muted hover:text-accent transition-colors"
+          className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors"
         >
           + Add
         </button>
       </div>
 
-      <div className="mt-2 space-y-2">
+      <div className="mt-3 space-y-2">
         {items.map((row, index) => (
           <div key={index} className="flex items-start gap-2">
             <input
               value={row.year}
               placeholder="Year"
               onChange={(e) => update(index, { year: e.target.value })}
-              className="w-[90px] border border-border px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="w-[90px] rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
             <input
               value={row.text}
               placeholder="Credit line"
               onChange={(e) => update(index, { text: e.target.value })}
-              className="flex-1 border border-border px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="flex-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
-            <div className="flex items-center gap-1 text-[11px] text-muted shrink-0 pt-1.5">
+            <div className="flex items-center gap-1 shrink-0 text-slate-400">
               <button
                 type="button"
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
-                className="hover:text-accent disabled:opacity-30 transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               >
                 ↑
               </button>
@@ -68,14 +68,14 @@ export function YearTextListEditor({ label, items, onChange }: Props) {
                 type="button"
                 onClick={() => move(index, 1)}
                 disabled={index === items.length - 1}
-                className="hover:text-accent disabled:opacity-30 transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               >
                 ↓
               </button>
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="hover:text-accent transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
                 ✕
               </button>
@@ -83,7 +83,7 @@ export function YearTextListEditor({ label, items, onChange }: Props) {
           </div>
         ))}
         {items.length === 0 ? (
-          <p className="text-[12px] text-muted">Nothing yet.</p>
+          <p className="mt-1 text-sm text-slate-500">Nothing yet.</p>
         ) : null}
       </div>
     </div>

@@ -105,9 +105,9 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <span className="block text-muted text-[12px]">Gallery images</span>
-        <label className="text-[12px] text-muted hover:text-accent transition-colors cursor-pointer">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-slate-900">Gallery images</span>
+        <label className="cursor-pointer rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors has-disabled:cursor-not-allowed has-disabled:opacity-50">
           {uploading === "compressing"
             ? "Optimizing…"
             : uploading === "uploading"
@@ -123,24 +123,29 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
           />
         </label>
       </div>
+      <p className="mt-1 text-xs text-slate-500">
+        Uploaded images become available to place in the article layout below.
+      </p>
 
-      {error ? <p className="text-[12px] text-accent mt-1">{error}</p> : null}
+      {error ? (
+        <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+      ) : null}
 
-      <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-3">
+      <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3">
         {items.map((src, index) => (
-          <div key={`${src}-${index}`} className="text-[11px]">
+          <div key={`${src}-${index}`} className="text-xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
               alt=""
-              className="w-full aspect-square object-cover bg-border"
+              className="w-full aspect-square rounded-md object-cover bg-slate-200"
             />
-            <div className="flex items-center justify-between mt-1 text-muted">
+            <div className="mt-1 flex items-center justify-between text-slate-400">
               <button
                 type="button"
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
-                className="hover:text-accent disabled:opacity-30 transition-colors"
+                className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               >
                 ↑
               </button>
@@ -148,14 +153,14 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
                 type="button"
                 onClick={() => move(index, 1)}
                 disabled={index === items.length - 1}
-                className="hover:text-accent disabled:opacity-30 transition-colors"
+                className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               >
                 ↓
               </button>
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="hover:text-accent transition-colors"
+                className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
                 ✕
               </button>
@@ -164,7 +169,7 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
         ))}
       </div>
       {items.length === 0 ? (
-        <p className="text-[12px] text-muted mt-2">No images yet.</p>
+        <p className="mt-2 text-sm text-slate-500">No images yet.</p>
       ) : null}
     </div>
   );

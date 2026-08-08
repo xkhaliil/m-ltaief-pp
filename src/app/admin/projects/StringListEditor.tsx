@@ -39,19 +39,19 @@ export function StringListEditor({
 
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <span className="block text-muted text-[12px]">{label}</span>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-slate-900">{label}</span>
         <button
           type="button"
           onClick={() => onChange([...items, ""])}
-          className="text-[12px] text-muted hover:text-accent transition-colors"
+          className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors"
         >
           + Add
         </button>
       </div>
-      {hint ? <p className="text-[11px] text-muted mt-0.5">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
 
-      <div className="mt-2 space-y-2">
+      <div className="mt-3 space-y-2">
         {items.map((item, index) => (
           <div key={index} className="flex items-start gap-2">
             <Field
@@ -59,14 +59,14 @@ export function StringListEditor({
               placeholder={placeholder}
               onChange={(e) => update(index, e.target.value)}
               rows={multiline ? 4 : undefined}
-              className="flex-1 border border-border px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
-            <div className="flex flex-col gap-1 text-[11px] text-muted shrink-0 pt-1">
+            <div className="flex flex-col gap-0.5 shrink-0 text-slate-400">
               <button
                 type="button"
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
-                className="hover:text-accent disabled:opacity-30 transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               >
                 ↑
               </button>
@@ -74,14 +74,14 @@ export function StringListEditor({
                 type="button"
                 onClick={() => move(index, 1)}
                 disabled={index === items.length - 1}
-                className="hover:text-accent disabled:opacity-30 transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
               >
                 ↓
               </button>
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="hover:text-accent transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
                 ✕
               </button>
@@ -89,7 +89,7 @@ export function StringListEditor({
           </div>
         ))}
         {items.length === 0 ? (
-          <p className="text-[12px] text-muted">Nothing yet.</p>
+          <p className="mt-1 text-sm text-slate-500">Nothing yet.</p>
         ) : null}
       </div>
     </div>

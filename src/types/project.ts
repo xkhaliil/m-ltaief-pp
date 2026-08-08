@@ -7,6 +7,8 @@ export type ProjectSection =
 
 export type ProjectLink = { label: string; href: string };
 
+export type ContentBlock = { type: "text"; text: string } | { type: "image"; src: string };
+
 export type Project = {
   id: string;
   section: ProjectSection;
@@ -16,7 +18,7 @@ export type Project = {
   sub_lines: string[];
   lines: string[];
   links: ProjectLink[];
-  paragraphs: string[];
+  content: ContentBlock[];
   videos: string[];
   meta: string;
   gallery: string[];

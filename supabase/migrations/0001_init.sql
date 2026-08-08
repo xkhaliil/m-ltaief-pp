@@ -11,7 +11,7 @@ create table if not exists public.projects (
   sub_lines jsonb not null default '[]'::jsonb,
   lines jsonb not null default '[]'::jsonb,
   links jsonb not null default '[]'::jsonb,
-  paragraphs jsonb not null default '[]'::jsonb,
+  content jsonb not null default '[]'::jsonb,
   videos jsonb not null default '[]'::jsonb,
   meta text not null default '',
   gallery jsonb not null default '[]'::jsonb,

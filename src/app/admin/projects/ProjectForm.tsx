@@ -1,12 +1,12 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import Link from "next/link";
-import type { Project, ProjectLink, ProjectSection } from "@/types/project";
+import type { ContentBlock, Project, ProjectLink, ProjectSection } from "@/types/project";
 import { saveProject } from "./actions";
 import { StringListEditor } from "./StringListEditor";
 import { LinksEditor } from "./LinksEditor";
 import { GalleryEditor } from "./GalleryEditor";
+import { ContentBlocksEditor } from "./ContentBlocksEditor";
 
 const SECTIONS: { value: ProjectSection; label: string }[] = [
   { value: "main", label: "Main index" },
@@ -25,11 +25,16 @@ const EMPTY: Project = {
   sub_lines: [],
   lines: [],
   links: [],
-  paragraphs: [],
+  content: [],
   videos: [],
   meta: "",
   gallery: [],
 };
+
+const inputClass =
+  "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900";
+const labelClass = "mb-1.5 block text-xs font-medium text-slate-700";
+const cardClass = "rounded-lg border border-slate-200 bg-white p-4 sm:p-5";
 
 export function ProjectForm({ project }: { project: Project | null }) {
   const isNew = !project;
@@ -45,119 +50,122 @@ export function ProjectForm({ project }: { project: Project | null }) {
   const [subLines, setSubLines] = useState<string[]>(initial.sub_lines);
   const [lines, setLines] = useState<string[]>(initial.lines);
   const [links, setLinks] = useState<ProjectLink[]>(initial.links);
-  const [paragraphs, setParagraphs] = useState<string[]>(initial.paragraphs);
+  const [content, setContent] = useState<ContentBlock[]>(initial.content);
   const [videos, setVideos] = useState<string[]>(initial.videos);
   const [meta, setMeta] = useState(initial.meta);
   const [gallery, setGallery] = useState<string[]>(initial.gallery);
 
   return (
-    <form action={formAction} className="max-w-[720px] text-[13px] leading-[1.5]">
+    <form action={formAction} className="space-y-5">
       <input type="hidden" name="originalId" value={initial.id} />
       <input type="hidden" name="sub_lines" value={JSON.stringify(subLines)} readOnly />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} readOnly />
       <input type="hidden" name="links" value={JSON.stringify(links)} readOnly />
-      <input type="hidden" name="paragraphs" value={JSON.stringify(paragraphs)} readOnly />
+      <input type="hidden" name="content" value={JSON.stringify(content)} readOnly />
       <input type="hidden" name="videos" value={JSON.stringify(videos)} readOnly />
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} readOnly />
 
-      <div className="flex items-center justify-between mb-[1.45em]">
-        <h1 className="font-bold">{isNew ? "New project" : "Edit project"}</h1>
-        <Link href="/admin" className="text-muted hover:text-accent transition-colors">
-          ← Back
-        </Link>
-      </div>
-
-      <div className="space-y-[1.1em]">
-        <label className="block">
-          <span className="block mb-1 text-muted text-[12px]">
-            Internal ID (slug — used in the URL, keep it stable once published)
-          </span>
-          <input
-            name="id"
-            required
-            pattern="[a-z0-9-]+"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            className="w-full border border-border px-2 py-1.5 outline-none focus:border-accent font-mono"
-          />
-        </label>
-
-        <div className="flex gap-4">
-          <label className="block flex-1">
-            <span className="block mb-1 text-muted text-[12px]">Section</span>
-            <select
-              name="section"
-              value={section}
-              onChange={(e) => setSection(e.target.value as ProjectSection)}
-              className="w-full border border-border px-2 py-1.5 outline-none focus:border-accent bg-white"
-            >
-              {SECTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+      <div className={cardClass}>
+        <h3 className="mb-4 text-sm font-semibold text-slate-900">Details</h3>
+        <div className="space-y-4">
+          <label className="block">
+            <span className={labelClass}>
+              Internal ID (slug — used in the URL, keep it stable once published)
+            </span>
+            <input
+              name="id"
+              required
+              pattern="[a-z0-9-]+"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              className={`${inputClass} font-mono`}
+            />
           </label>
 
-          <label className="block w-[120px]">
-            <span className="block mb-1 text-muted text-[12px]">Order</span>
+          <div className="flex gap-4">
+            <label className="block flex-1">
+              <span className={labelClass}>Section</span>
+              <select
+                name="section"
+                value={section}
+                onChange={(e) => setSection(e.target.value as ProjectSection)}
+                className={inputClass}
+              >
+                {SECTIONS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block w-[120px]">
+              <span className={labelClass}>Order</span>
+              <input
+                type="number"
+                name="position"
+                value={position}
+                onChange={(e) => setPosition(Number(e.target.value))}
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          <label className="block">
+            <span className={labelClass}>Title</span>
             <input
-              type="number"
-              name="position"
-              value={position}
-              onChange={(e) => setPosition(Number(e.target.value))}
-              className="w-full border border-border px-2 py-1.5 outline-none focus:border-accent"
+              name="title"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={inputClass}
+            />
+          </label>
+
+          <label className="block">
+            <span className={labelClass}>
+              Menu label (optional — only if it should read differently in the side menu than
+              the title)
+            </span>
+            <input
+              name="nav_label"
+              value={navLabel}
+              onChange={(e) => setNavLabel(e.target.value)}
+              className={inputClass}
             />
           </label>
         </div>
+      </div>
 
-        <label className="block">
-          <span className="block mb-1 text-muted text-[12px]">Title</span>
-          <input
-            name="title"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border border-border px-2 py-1.5 outline-none focus:border-accent"
-          />
-        </label>
-
-        <label className="block">
-          <span className="block mb-1 text-muted text-[12px]">
-            Menu label (optional — only if it should read differently in the side menu than the title)
-          </span>
-          <input
-            name="nav_label"
-            value={navLabel}
-            onChange={(e) => setNavLabel(e.target.value)}
-            className="w-full border border-border px-2 py-1.5 outline-none focus:border-accent"
-          />
-        </label>
-
+      <div className={cardClass}>
         <StringListEditor
           label="Info lines"
           hint="Venue, date, subtitle — shown under the title, one line each."
           items={lines}
           onChange={setLines}
         />
+      </div>
 
+      <div className={cardClass}>
         <StringListEditor
           label="Menu sub-lines"
           hint="Extra line(s) shown under this item in the side menu (e.g. an Arabic title)."
           items={subLines}
           onChange={setSubLines}
         />
+      </div>
 
+      <div className={cardClass}>
         <LinksEditor items={links} onChange={setLinks} />
+      </div>
 
-        <StringListEditor
-          label="Paragraphs"
-          hint="Body text, one paragraph per box."
-          items={paragraphs}
-          onChange={setParagraphs}
-          multiline
-        />
+      <div className={cardClass}>
+        <GalleryEditor projectId={id} items={gallery} onChange={setGallery} />
+      </div>
 
+      <ContentBlocksEditor blocks={content} images={gallery} onChange={setContent} />
+
+      <div className={cardClass}>
         <StringListEditor
           label="Video links"
           hint="A Vimeo or YouTube link (e.g. https://vimeo.com/1215280534), or just the Vimeo ID (e.g. 1215280534)."
@@ -165,31 +173,33 @@ export function ProjectForm({ project }: { project: Project | null }) {
           onChange={setVideos}
           placeholder="https://vimeo.com/1215280534"
         />
+      </div>
 
+      <div className={cardClass}>
         <label className="block">
-          <span className="block mb-1 text-muted text-[12px]">Credits / metadata</span>
+          <span className={labelClass}>Credits / metadata</span>
           <textarea
             name="meta"
             rows={3}
             value={meta}
             onChange={(e) => setMeta(e.target.value)}
-            className="w-full border border-border px-2 py-1.5 outline-none focus:border-accent"
+            className={inputClass}
           />
         </label>
+      </div>
 
-        <GalleryEditor projectId={id} items={gallery} onChange={setGallery} />
+      {state?.error ? (
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+      ) : null}
 
-        {state?.error ? <p className="text-accent">{state.error}</p> : null}
-
-        <div className="pt-[0.5em]">
-          <button
-            type="submit"
-            disabled={pending}
-            className="border border-ink px-3 py-1.5 hover:bg-ink hover:text-white transition-colors disabled:opacity-50"
-          >
-            {pending ? "Saving…" : "Save"}
-          </button>
-        </div>
+      <div className="sticky bottom-4 flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-slate-800 transition-colors disabled:opacity-50"
+        >
+          {pending ? "Saving…" : isNew ? "Create project" : "Save"}
+        </button>
       </div>
     </form>
   );

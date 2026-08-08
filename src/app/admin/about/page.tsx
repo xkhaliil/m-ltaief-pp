@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { EMPTY_PROFILE, type Profile } from "@/types/profile";
+import { AdminHeader } from "../AdminHeader";
 import { AboutForm } from "./AboutForm";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +12,9 @@ export default async function AboutAdminPage() {
   const profile = (data as Profile | null) ?? EMPTY_PROFILE;
 
   return (
-    <main className="min-h-screen bg-paper text-ink px-5 py-6 sm:py-8">
-      <div className="mx-auto">
+    <main className="min-h-screen bg-slate-100">
+      <AdminHeader title="About / CV" back={{ href: "/admin", label: "Dashboard" }} />
+      <div className="mx-auto max-w-[760px] px-5 py-8 sm:px-8">
         <AboutForm profile={profile} />
       </div>
     </main>

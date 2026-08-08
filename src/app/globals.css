@@ -61,12 +61,6 @@ body {
   margin-top: 1.45em;
 }
 
-/* Lydia/Cargo gallery: every photograph is an individual inline work,
-   separated only by the native <br> line rhythm. */
-.cargo-gallery {
-  margin-top: 1.45em;
-}
-
 /* Large Cargo film sheet — aligned with the same 1000px media field as the
    photographs above. Two wide frames give each moving-image work room to read. */
 .cargo-video-grid {

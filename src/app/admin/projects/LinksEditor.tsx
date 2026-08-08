@@ -20,43 +20,43 @@ export function LinksEditor({ items, onChange }: Props) {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <span className="block text-muted text-[12px]">Links</span>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-slate-900">Links</span>
         <button
           type="button"
           onClick={() => onChange([...items, { label: "", href: "" }])}
-          className="text-[12px] text-muted hover:text-accent transition-colors"
+          className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors"
         >
           + Add
         </button>
       </div>
 
-      <div className="mt-2 space-y-2">
+      <div className="mt-3 space-y-2">
         {items.map((item, index) => (
           <div key={index} className="flex items-start gap-2">
             <input
               value={item.label}
               placeholder="Label"
               onChange={(e) => update(index, { label: e.target.value })}
-              className="w-1/3 border border-border px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="w-1/3 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
             <input
               value={item.href}
               placeholder="https://…"
               onChange={(e) => update(index, { href: e.target.value })}
-              className="flex-1 border border-border px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
             <button
               type="button"
               onClick={() => remove(index)}
-              className="text-[11px] text-muted hover:text-accent transition-colors pt-1.5"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
             >
               ✕
             </button>
           </div>
         ))}
         {items.length === 0 ? (
-          <p className="text-[12px] text-muted">No links.</p>
+          <p className="mt-1 text-sm text-slate-500">No links.</p>
         ) : null}
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { ProjectLink, ProjectSection } from "@/types/project";
+import type { ContentBlock, ProjectLink, ProjectSection } from "@/types/project";
 
 const SECTIONS: ProjectSection[] = [
   "main",
@@ -48,7 +48,12 @@ export async function saveProject(
   const links = parseJsonArray<ProjectLink>(formData, "links").filter(
     (l) => l && l.label && l.href,
   );
-  const paragraphs = parseJsonArray<string>(formData, "paragraphs").filter(Boolean);
+  const content = parseJsonArray<ContentBlock>(formData, "content").filter(
+    (block) =>
+      block &&
+      ((block.type === "text" && block.text.trim()) ||
+        (block.type === "image" && block.src.trim())),
+  );
   const videos = parseJsonArray<string>(formData, "videos").filter(Boolean);
   const gallery = parseJsonArray<string>(formData, "gallery").filter(Boolean);
 
@@ -71,7 +76,7 @@ export async function saveProject(
     sub_lines: subLines,
     lines,
     links,
-    paragraphs,
+    content,
     videos,
     meta,
     gallery,

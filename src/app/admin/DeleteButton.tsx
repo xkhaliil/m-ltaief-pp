@@ -16,7 +16,7 @@ export function DeleteButton({
         }
       }}
     >
-      <button type="submit" className="text-muted hover:text-accent transition-colors">
+      <button type="submit" className="text-red-600 hover:text-red-700 transition-colors">
         Delete
       </button>
     </form>

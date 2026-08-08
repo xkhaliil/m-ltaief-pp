@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Project, ProjectSection } from "@/types/project";
-import { deleteProject, signOut } from "./actions";
+import { deleteProject } from "./actions";
 import { DeleteButton } from "./DeleteButton";
+import { AdminHeader } from "./AdminHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -43,89 +44,75 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-paper text-ink px-5 py-6 sm:py-8">
-      <div className="mx-auto max-w-[900px]">
-        <header className="flex items-start justify-between gap-4 mb-[2em]">
-          <div>
-            <h1 className="font-bold text-[14px]">Mohamed-Ali Ltaief — Admin</h1>
-            <p className="text-muted text-[12px] mt-1">{user?.email}</p>
-          </div>
-          <div className="flex items-center gap-4 text-[12px]">
-            <Link
-              href="/"
-              target="_blank"
-              className="hover:text-accent transition-colors"
-            >
-              View site
-            </Link>
-            <form action={signOut}>
-              <button type="submit" className="hover:text-accent transition-colors">
-                Sign out
-              </button>
-            </form>
-          </div>
-        </header>
+    <main className="min-h-screen bg-slate-100">
+      <AdminHeader title="Mohamed-Ali Ltaief — Admin" email={user?.email} />
 
-        <div className="mb-[2em] flex gap-3">
+      <div className="mx-auto max-w-[960px] px-5 py-8 sm:px-8">
+        <div className="mb-6 flex flex-wrap gap-3">
           <Link
             href="/admin/projects/new"
-            className="inline-block border border-ink px-3 py-1.5 text-[12px] hover:bg-ink hover:text-white transition-colors"
+            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition-colors"
           >
             + Add new project
           </Link>
           <Link
             href="/admin/about"
-            className="inline-block border border-border px-3 py-1.5 text-[12px] hover:border-ink transition-colors"
+            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors"
           >
             Edit About / CV
           </Link>
         </div>
 
         {error ? (
-          <p className="text-accent text-[13px]">
+          <p className="mb-6 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
             Could not load projects: {error.message}
           </p>
         ) : null}
 
-        {SECTION_ORDER.map((section) => {
-          const items = grouped.get(section);
-          if (!items?.length) return null;
+        <div className="space-y-6">
+          {SECTION_ORDER.map((section) => {
+            const items = grouped.get(section);
+            if (!items?.length) return null;
 
-          return (
-            <section key={section} className="mb-[2em]">
-              <h2 className="text-[12px] font-bold text-muted mb-2">
-                {SECTION_LABELS[section]}
-              </h2>
-              <ul className="text-[13px] divide-y divide-border border-t border-b border-border">
-                {items.map((project) => (
-                  <li
-                    key={project.id}
-                    className="flex items-center justify-between gap-4 py-2"
-                  >
-                    <Link
-                      href={`/admin/projects/${project.id}`}
-                      className="min-w-0 truncate hover:text-accent transition-colors"
+            return (
+              <section
+                key={section}
+                className="overflow-hidden rounded-lg border border-slate-200 bg-white"
+              >
+                <h2 className="border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {SECTION_LABELS[section]}
+                </h2>
+                <ul className="divide-y divide-slate-100">
+                  {items.map((project) => (
+                    <li
+                      key={project.id}
+                      className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50 transition-colors"
                     >
-                      {project.title}
-                    </Link>
-                    <div className="flex items-center gap-4 shrink-0 text-[12px]">
                       <Link
                         href={`/admin/projects/${project.id}`}
-                        className="text-muted hover:text-accent transition-colors"
+                        className="min-w-0 truncate text-sm text-slate-900 hover:text-slate-600 transition-colors"
                       >
-                        Edit
+                        {project.title}
                       </Link>
-                      <DeleteButton
-                        action={deleteProject.bind(null, project.id)}
-                        label={project.title}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
+                      <div className="flex shrink-0 items-center gap-4 text-xs font-medium">
+                        <Link
+                          href={`/admin/projects/${project.id}`}
+                          className="text-slate-500 hover:text-slate-900 transition-colors"
+                        >
+                          Edit
+                        </Link>
+                        <DeleteButton
+                          action={deleteProject.bind(null, project.id)}
+                          label={project.title}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
       </div>
     </main>
   );
