@@ -6,8 +6,8 @@ import { saveProfile } from "./actions";
 import { YearTextListEditor } from "./YearTextListEditor";
 
 const inputClass =
-  "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900";
-const labelClass = "mb-1.5 block text-xs font-medium text-slate-700";
+  "w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100";
+const labelClass = "mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300";
 
 export function AboutForm({ profile }: { profile: Profile }) {
   const [state, formAction, pending] = useActionState(saveProfile, null);
@@ -29,8 +29,8 @@ export function AboutForm({ profile }: { profile: Profile }) {
       <input type="hidden" name="awards" value={JSON.stringify(awards)} readOnly />
       <input type="hidden" name="residencies" value={JSON.stringify(residencies)} readOnly />
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="mb-4 text-sm font-semibold text-slate-900">Bio</h3>
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
+        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Bio</h3>
         <div className="space-y-4">
           <label className="block">
             <span className={labelClass}>Name</span>
@@ -89,7 +89,7 @@ export function AboutForm({ profile }: { profile: Profile }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <YearTextListEditor
           label="Selected performance / theater & project(s)"
           items={works}
@@ -97,7 +97,7 @@ export function AboutForm({ profile }: { profile: Profile }) {
         />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <YearTextListEditor
           label="Selected lecture performances"
           items={lectures}
@@ -105,11 +105,11 @@ export function AboutForm({ profile }: { profile: Profile }) {
         />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <YearTextListEditor label="Awards and Grants" items={awards} onChange={setAwards} />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <YearTextListEditor
           label="Fellowships / Residencies"
           items={residencies}
@@ -118,17 +118,17 @@ export function AboutForm({ profile }: { profile: Profile }) {
       </div>
 
       {state?.error ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-md bg-red-50 dark:bg-red-950/40 px-3 py-2 text-sm text-red-700 dark:text-red-300">{state.error}</p>
       ) : null}
       {state?.success ? (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Saved.</p>
+        <p className="rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">Saved.</p>
       ) : null}
 
       <div className="sticky bottom-4">
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-slate-800 transition-colors disabled:opacity-50"
+          className="rounded-md bg-slate-900 dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-slate-900 shadow-md hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save"}
         </button>

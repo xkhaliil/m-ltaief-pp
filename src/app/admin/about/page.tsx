@@ -12,7 +12,7 @@ export default async function AboutAdminPage() {
   const profile = (data as Profile | null) ?? EMPTY_PROFILE;
 
   return (
-    <main className="min-h-screen bg-slate-100">
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-950">
       <AdminHeader title="About / CV" back={{ href: "/admin", label: "Dashboard" }} />
       <div className="mx-auto max-w-[760px] px-5 py-8 sm:px-8">
         <AboutForm profile={profile} />

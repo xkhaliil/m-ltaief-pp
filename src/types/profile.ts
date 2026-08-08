@@ -7,6 +7,8 @@ export type Profile = {
   email: string;
   bio_pdf_url: string;
   deutsch_url: string;
+  index_label: string;
+  index_subtitle: string;
   works: CvRow[];
   lectures: CvRow[];
   awards: CvRow[];
@@ -21,6 +23,8 @@ export const EMPTY_PROFILE: Profile = {
   email: "",
   bio_pdf_url: "",
   deutsch_url: "",
+  index_label: "/ˈɪndɛks/",
+  index_subtitle: "Selected works, 2011 — 2026",
   works: [],
   lectures: [],
   awards: [],

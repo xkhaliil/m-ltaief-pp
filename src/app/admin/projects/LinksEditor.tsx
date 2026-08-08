@@ -21,11 +21,11 @@ export function LinksEditor({ items, onChange }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-slate-900">Links</span>
+        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Links</span>
         <button
           type="button"
           onClick={() => onChange([...items, { label: "", href: "" }])}
-          className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors"
+          className="rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
         >
           + Add
         </button>
@@ -38,25 +38,25 @@ export function LinksEditor({ items, onChange }: Props) {
               value={item.label}
               placeholder="Label"
               onChange={(e) => update(index, { label: e.target.value })}
-              className="w-1/3 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+              className="w-1/3 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
             />
             <input
               value={item.href}
               placeholder="https://…"
               onChange={(e) => update(index, { href: e.target.value })}
-              className="flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+              className="flex-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
             />
             <button
               type="button"
               onClick={() => remove(index)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-slate-400 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
             >
               ✕
             </button>
           </div>
         ))}
         {items.length === 0 ? (
-          <p className="mt-1 text-sm text-slate-500">No links.</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">No links.</p>
         ) : null}
       </div>
     </div>

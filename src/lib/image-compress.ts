@@ -3,8 +3,8 @@
 // Resizes + re-encodes an image in the browser before it's uploaded, so a
 // multi-megabyte phone/camera photo doesn't eat into Supabase's 1GB free
 // storage tier. The site never displays a gallery image larger than
-// 1000x1280 (see .cargo-media in globals.css), so anything beyond ~2x that
-// for retina screens is wasted storage.
+// 1000x1280 (see the Img component in SiteClient.tsx), so anything beyond
+// ~2x that for retina screens is wasted storage.
 const MAX_DIMENSION = 2000;
 const QUALITY = 0.82;
 const OUTPUT_TYPE = "image/webp";

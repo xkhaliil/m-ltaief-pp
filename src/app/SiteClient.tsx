@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import Image from "next/image";
 import type { Project } from "@/types/project";
 import type { CvRow, Profile } from "@/types/profile";
 import { EMPTY_PROFILE } from "@/types/profile";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Entry = Project;
 
@@ -175,6 +179,7 @@ function CvProjectList({ rows }: { rows: CvRow[] }) {
 // summaries), prefer the first image actually placed in the article; fall
 // back to the upload pool if the article has no images placed yet.
 function thumbnailFor(entry: Entry): string | undefined {
+  if (entry.thumbnail_url) return entry.thumbnail_url;
   const firstBlockImage = entry.content.find((b) => b.type === "image")?.src;
   return firstBlockImage ?? entry.gallery[0];
 }
@@ -184,10 +189,52 @@ function firstTextFor(entry: Entry): string {
 }
 
 function Img({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [ratio, setRatio] = useState<number | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    setLoaded(false);
+    setRatio(null);
+    const el = imgRef.current;
+    if (el?.complete && el.naturalWidth) {
+      setRatio(el.naturalWidth / el.naturalHeight);
+      setLoaded(true);
+    }
+  }, [src]);
+
+  const handleLoad = (e: SyntheticEvent<HTMLImageElement>) => {
+    const el = e.currentTarget;
+    if (el.naturalWidth) setRatio(el.naturalWidth / el.naturalHeight);
+    setLoaded(true);
+  };
+
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} loading="lazy" className="cargo-media" />
+      {/* next/image resizes/re-encodes these on the fly — content-block
+          photos are uploaded at full camera resolution (several thousand px,
+          several MB), and decoding that just to show it at article width was
+          the actual cause of scroll jank on a project page, not the smooth
+          scroll itself. Real dimensions aren't known ahead of time, so the
+          box starts at a guessed 3:2 ratio and snaps to the real one (read
+          off the loaded img) in the same update that fades it in, before
+          anything is visible at the wrong shape. */}
+      <span
+        className="relative block w-full max-w-[1000px]"
+        style={{ aspectRatio: ratio ?? 3 / 2, maxHeight: 1280 }}
+      >
+        {!loaded ? <Skeleton className="absolute inset-0" /> : null}
+        <Image
+          ref={imgRef}
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width: 1000px) 100vw, 1000px"
+          className={`object-contain transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
+          onLoad={handleLoad}
+          onError={() => setLoaded(true)}
+        />
+      </span>
       <br />
     </>
   );
@@ -269,6 +316,22 @@ function parseVideoEmbed(raw: string): VideoEmbed | null {
   return { src: value, label: value };
 }
 
+function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <span className="cargo-video-frame">
+      {!loaded ? <Skeleton className="absolute inset-0" /> : null}
+      <iframe
+        src={embed.src}
+        allow="autoplay; fullscreen; picture-in-picture"
+        title={`${title} — ${embed.label}`}
+        onLoad={() => setLoaded(true)}
+        className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </span>
+  );
+}
+
 function VideoGrid({ videos, title }: { videos: string[]; title: string }) {
   const embeds = videos
     .map(parseVideoEmbed)
@@ -279,12 +342,7 @@ function VideoGrid({ videos, title }: { videos: string[]; title: string }) {
   return (
     <div className="cargo-video-grid">
       {embeds.map((embed, i) => (
-        <iframe
-          key={`${embed.src}-${i}`}
-          src={embed.src}
-          allow="autoplay; fullscreen; picture-in-picture"
-          title={`${title} — ${embed.label}`}
-        />
+        <VideoEmbedFrame key={`${embed.src}-${i}`} embed={embed} title={title} />
       ))}
     </div>
   );
@@ -319,19 +377,59 @@ function EntryPage({ e }: { e: Entry }) {
 function ProjectsPage({
   data,
   onSelect,
+  indexLabel,
+  indexSubtitle,
 }: {
   data: SiteData;
   onSelect: (id: string) => void;
+  indexLabel: string;
+  indexSubtitle: string;
 }) {
+  const [columns, setColumns] = useState<2 | 3>(3);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("indexColumns");
+    if (stored === "2" || stored === "3") setColumns(Number(stored) as 2 | 3);
+  }, []);
+
+  const changeColumns = (next: 2 | 3) => {
+    setColumns(next);
+    localStorage.setItem("indexColumns", String(next));
+  };
+
   return (
     <article>
-      <div>
-        <span className="font-bold">/ˈɪndɛks/</span>
-        <br />
-        Selected works, 2011 — 2026
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <span className="font-bold">{indexLabel}</span>
+          <br />
+          {indexSubtitle}
+        </div>
+        <div className="flex shrink-0 gap-2 pt-px text-[11px]" aria-label="Grid columns">
+          <button
+            type="button"
+            onClick={() => changeColumns(2)}
+            aria-current={columns === 2}
+            aria-label="Show 2 columns"
+            className={columns === 2 ? "text-accent" : "hover:text-accent transition-colors"}
+          >
+            2
+          </button>
+          <button
+            type="button"
+            onClick={() => changeColumns(3)}
+            aria-current={columns === 3}
+            aria-label="Show 3 columns"
+            className={columns === 3 ? "text-accent" : "hover:text-accent transition-colors"}
+          >
+            3
+          </button>
+        </div>
       </div>
 
-      <div className="cargo-project-preview-grid mt-[1.45em]">
+      <div
+        className={`cargo-project-preview-grid mt-[1.45em] ${columns === 2 ? "cargo-project-preview-grid-2" : ""}`}
+      >
         {data.projectIds.map((id) => {
           const entry = data.entries[id];
           const lead = thumbnailFor(entry);
@@ -342,8 +440,12 @@ function ProjectsPage({
               className="cargo-project-preview text-left hover:text-accent transition-colors"
             >
               {lead ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={lead} alt={entry.title} loading="lazy" />
+                <ImageWithSkeleton
+                  src={lead}
+                  alt={entry.title}
+                  wrapperClassName="cargo-project-preview-media"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px"
+                />
               ) : (
                 <span className="cargo-project-placeholder" aria-hidden="true" />
               )}
@@ -709,6 +811,7 @@ export function SiteClient({
 
   return (
     <div className="min-h-screen bg-paper text-ink">
+      <ThemeToggle className="text-ink hover:text-accent transition-colors" />
       <div className="mx-auto max-w-[1440px] px-5 py-6 sm:py-8 flex flex-col sm:flex-row gap-6 sm:gap-10">
         {/* Static Cargo index — permanently positioned on the right */}
         <aside
@@ -784,7 +887,12 @@ export function SiteClient({
         {/* Cargo project page */}
         <div className="flex-1 min-w-0 max-w-[1000px] pb-16 sm:order-1">
           {sel === "projects" ? (
-            <ProjectsPage data={data} onSelect={handleSelect} />
+            <ProjectsPage
+              data={data}
+              onSelect={handleSelect}
+              indexLabel={resolvedProfile.index_label}
+              indexSubtitle={resolvedProfile.index_subtitle}
+            />
           ) : sel === "motus" ? (
             <MotusPage data={data} onSelect={handleSelect} />
           ) : sel === "lecture-performance" ? (

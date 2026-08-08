@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { SplashGate } from "@/components/SplashGate";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,11 +13,19 @@ export const metadata: Metadata = {
   },
 };
 
+// Light is the default regardless of OS preference — only an explicit prior
+// toggle (stored as 'dark') switches it.
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme')==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="bg-paper text-ink antialiased">
-        {children}
+        <SmoothScroll />
+        <SplashGate>{children}</SplashGate>
       </body>
     </html>
   );

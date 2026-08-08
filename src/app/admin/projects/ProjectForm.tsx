@@ -29,12 +29,13 @@ const EMPTY: Project = {
   videos: [],
   meta: "",
   gallery: [],
+  thumbnail_url: null,
 };
 
 const inputClass =
-  "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900";
-const labelClass = "mb-1.5 block text-xs font-medium text-slate-700";
-const cardClass = "rounded-lg border border-slate-200 bg-white p-4 sm:p-5";
+  "w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100";
+const labelClass = "mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300";
+const cardClass = "rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5";
 
 export function ProjectForm({ project }: { project: Project | null }) {
   const isNew = !project;
@@ -66,7 +67,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} readOnly />
 
       <div className={cardClass}>
-        <h3 className="mb-4 text-sm font-semibold text-slate-900">Details</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Details</h3>
         <div className="space-y-4">
           <label className="block">
             <span className={labelClass}>
@@ -189,14 +190,14 @@ export function ProjectForm({ project }: { project: Project | null }) {
       </div>
 
       {state?.error ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-md bg-red-50 dark:bg-red-950/40 px-3 py-2 text-sm text-red-700 dark:text-red-300">{state.error}</p>
       ) : null}
 
       <div className="sticky bottom-4 flex items-center gap-3">
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-slate-800 transition-colors disabled:opacity-50"
+          className="rounded-md bg-slate-900 dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-slate-900 shadow-md hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50"
         >
           {pending ? "Saving…" : isNew ? "Create project" : "Save"}
         </button>

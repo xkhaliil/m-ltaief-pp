@@ -22,6 +22,7 @@ export type Project = {
   videos: string[];
   meta: string;
   gallery: string[];
+  thumbnail_url: string | null;
   created_at?: string;
   updated_at?: string;
 };
