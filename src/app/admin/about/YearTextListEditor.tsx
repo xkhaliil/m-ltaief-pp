@@ -33,7 +33,7 @@ export function YearTextListEditor({ label, items, onChange }: Props) {
         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{label}</span>
         <button
           type="button"
-          onClick={() => onChange([{ year: "", text: "" }, ...items])}
+          onClick={() => onChange([{ year: "", text: "", url: "" }, ...items])}
           className="rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
         >
           + Add
@@ -42,44 +42,55 @@ export function YearTextListEditor({ label, items, onChange }: Props) {
 
       <div className="mt-3 space-y-2">
         {items.map((row, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <input
-              value={row.year}
-              placeholder="Year"
-              onChange={(e) => update(index, { year: e.target.value })}
-              className="w-[90px] rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
-            />
-            <input
-              value={row.text}
-              placeholder="Credit line"
-              onChange={(e) => update(index, { text: e.target.value })}
-              className="flex-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
-            />
-            <div className="flex items-center gap-1 shrink-0 text-slate-400 dark:text-slate-600">
-              <button
-                type="button"
-                onClick={() => move(index, -1)}
-                disabled={index === 0}
-                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                onClick={() => move(index, 1)}
-                disabled={index === items.length - 1}
-                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                onClick={() => remove(index)}
-                className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-              >
-                ✕
-              </button>
+          <div
+            key={index}
+            className="rounded-md border border-slate-200 dark:border-slate-800 p-2 space-y-2"
+          >
+            <div className="flex items-start gap-2">
+              <input
+                value={row.year}
+                placeholder="Year"
+                onChange={(e) => update(index, { year: e.target.value })}
+                className="w-[90px] rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
+              />
+              <input
+                value={row.text}
+                placeholder="Credit line"
+                onChange={(e) => update(index, { text: e.target.value })}
+                className="flex-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
+              />
+              <div className="flex items-center gap-1 shrink-0 text-slate-400 dark:text-slate-600">
+                <button
+                  type="button"
+                  onClick={() => move(index, -1)}
+                  disabled={index === 0}
+                  className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => move(index, 1)}
+                  disabled={index === items.length - 1}
+                  className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="flex h-7 w-7 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
+            <input
+              value={row.url ?? ""}
+              placeholder="Link (optional) — https://…"
+              onChange={(e) => update(index, { url: e.target.value })}
+              className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
+            />
           </div>
         ))}
         {items.length === 0 ? (

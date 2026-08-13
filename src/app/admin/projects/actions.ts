@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { ContentBlock, ProjectLink, ProjectSection } from "@/types/project";
+import type { ContentItem, ContentRow, ProjectLink, ProjectSection, RowLayout } from "@/types/project";
+import { ROW_LAYOUTS } from "@/lib/content-rows";
 
 const SECTIONS: ProjectSection[] = [
   "main",
@@ -22,6 +23,47 @@ function parseJsonArray<T>(formData: FormData, key: string): T[] {
   } catch {
     return [];
   }
+}
+
+function defaultLayoutForCount(count: number): RowLayout {
+  if (count <= 1) return "full";
+  if (count === 2) return "half-half";
+  return "thirds";
+}
+
+function isValidItem(item: unknown): item is ContentItem {
+  if (!item || typeof item !== "object") return false;
+  const i = item as Record<string, unknown>;
+  if (i.type === "text") return typeof i.text === "string" && i.text.trim().length > 0;
+  if (i.type === "image") return typeof i.src === "string" && i.src.trim().length > 0;
+  if (i.type === "video") return typeof i.src === "string" && i.src.trim().length > 0;
+  return false;
+}
+
+// Defense in depth: the admin editor keeps each row's item count in sync
+// with its layout as you edit, but this is the one place that actually
+// decides what gets persisted, so it re-validates rather than trusting the
+// client — drops empty items/rows and corrects any row whose layout
+// doesn't match its (post-cleanup) item count.
+function sanitizeRows(raw: unknown[]): ContentRow[] {
+  const rows: ContentRow[] = [];
+  for (const row of raw) {
+    if (!row || typeof row !== "object") continue;
+    const r = row as Record<string, unknown>;
+    if (typeof r.id !== "string" || !Array.isArray(r.items)) continue;
+
+    const items = r.items.filter(isValidItem).slice(0, 3);
+    if (items.length === 0) continue;
+
+    const requestedLayout = typeof r.layout === "string" ? (r.layout as RowLayout) : undefined;
+    const layout =
+      requestedLayout && ROW_LAYOUTS[requestedLayout]?.fractions.length === items.length
+        ? requestedLayout
+        : defaultLayoutForCount(items.length);
+
+    rows.push({ id: r.id, layout, items });
+  }
+  return rows;
 }
 
 export async function saveProject(
@@ -48,13 +90,11 @@ export async function saveProject(
   const links = parseJsonArray<ProjectLink>(formData, "links").filter(
     (l) => l && l.label && l.href,
   );
-  const content = parseJsonArray<ContentBlock>(formData, "content").filter(
-    (block) =>
-      block &&
-      ((block.type === "text" && block.text.trim()) ||
-        (block.type === "image" && block.src.trim())),
-  );
-  const videos = parseJsonArray<string>(formData, "videos").filter(Boolean);
+  const content = sanitizeRows(parseJsonArray<unknown>(formData, "content"));
+  // Video links now live as items inside content rows — always cleared on
+  // save so a project never double-counts an old video once it's been
+  // folded into the new editor.
+  const videos: string[] = [];
   const gallery = parseJsonArray<string>(formData, "gallery").filter(Boolean);
 
   const supabase = await createClient();

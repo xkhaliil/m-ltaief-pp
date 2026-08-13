@@ -5,14 +5,17 @@ import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image-compress";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import type { Project } from "@/types/project";
+import { flattenItems, normalizeContent } from "@/lib/content-rows";
 import { uploadImageLocally } from "../projects/local-upload";
 import { saveMainTiles } from "./actions";
 
 type Tile = { id: string; title: string; thumbnail_url: string | null; fallback: string | null };
 
 function fallbackThumbnail(project: Project): string | null {
-  const firstBlockImage = project.content.find((b) => b.type === "image")?.src;
-  return firstBlockImage ?? project.gallery[0] ?? null;
+  const firstImage = flattenItems(normalizeContent(project.content, project.videos)).find(
+    (i) => i.type === "image",
+  );
+  return (firstImage?.type === "image" ? firstImage.src : null) ?? project.gallery[0] ?? null;
 }
 
 function isStorageQuotaError(message: string) {
@@ -123,7 +126,15 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
       <input type="hidden" name="tiles" value={payload} readOnly />
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
-        <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Main index tiles</h3>
+        <div className="mb-1 flex items-center justify-between gap-3">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Main index tiles</h3>
+          <a
+            href="/admin/projects/new"
+            className="shrink-0 rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            + Add new project
+          </a>
+        </div>
         <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
           Drag to reorder. Hover a thumbnail to replace it. For links, video, or the full text
           layout of a project, use &quot;Edit&quot;.
@@ -219,7 +230,8 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
 
         {tiles.length === 0 ? (
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            No &quot;Main index&quot; projects yet — add one from the dashboard.
+            No &quot;Main index&quot; projects yet — click &quot;+ Add new project&quot; above to
+            create one.
           </p>
         ) : null}
       </div>
