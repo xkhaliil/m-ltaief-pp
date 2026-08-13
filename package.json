@@ -11,6 +11,9 @@
     "db:migrate": "prisma db execute --schema prisma/schema.prisma --file supabase/migrations/0001_init.sql && prisma db execute --schema prisma/schema.prisma --file supabase/seed.sql && prisma db execute --schema prisma/schema.prisma --file supabase/migrations/0002_profile.sql && prisma db execute --schema prisma/schema.prisma --file supabase/seed_about.sql && prisma db execute --schema prisma/schema.prisma --file supabase/migrations/0003_storage_usage.sql"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
     "clsx": "^2.1.1",

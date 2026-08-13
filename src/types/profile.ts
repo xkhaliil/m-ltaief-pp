@@ -1,4 +1,4 @@
-export type CvRow = { year: string; text: string };
+export type CvRow = { year: string; text: string; url?: string };
 
 export type Profile = {
   id: number;

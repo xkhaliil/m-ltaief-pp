@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { SplashGate } from "@/components/SplashGate";
+// import { SplashGate } from "@/components/SplashGate"; // boot splash — disabled for now, re-enable later
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,7 +25,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="bg-paper text-ink antialiased">
         <SmoothScroll />
-        <SplashGate>{children}</SplashGate>
+        {/* <SplashGate>{children}</SplashGate> */}
+        {children}
       </body>
     </html>
   );

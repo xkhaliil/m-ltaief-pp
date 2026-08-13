@@ -2,14 +2,19 @@
 
 import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import Image from "next/image";
-import type { Project } from "@/types/project";
+import type { ContentRow, Project } from "@/types/project";
 import type { CvRow, Profile } from "@/types/profile";
 import { EMPTY_PROFILE } from "@/types/profile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ROW_LAYOUTS, flattenItems, normalizeContent } from "@/lib/content-rows";
+import { parseVideoEmbed, type VideoEmbed } from "@/lib/video-embed";
 
-type Entry = Project;
+// `content` is always normalized (legacy flat blocks + the old `videos`
+// column folded into rows) by the time a Project becomes an Entry — see
+// buildSiteData below. Nothing downstream needs to know the raw DB shape.
+type Entry = Omit<Project, "content" | "videos"> & { content: ContentRow[] };
 
 type MenuItem =
   | { type: "item"; id: string; label: string; subLines?: string[] }
@@ -36,7 +41,9 @@ function buildSiteData(projects: Project[]): SiteData {
   const archive = bySection("archive");
 
   const entries: Record<string, Entry> = {};
-  for (const p of projects) entries[p.id] = p;
+  for (const p of projects) {
+    entries[p.id] = { ...p, content: normalizeContent(p.content, p.videos) };
+  }
 
   const toItem = (p: Project): MenuItem => ({
     type: "item",
@@ -148,13 +155,31 @@ function CVLinkedText({ text }: { text: string }) {
   );
 }
 
+// An explicit link set on the row (via the admin) always wins over the
+// automatic org-name matching below — it's a deliberate per-entry choice.
+function CvRowText({ row }: { row: CvRow }) {
+  if (row.url) {
+    return (
+      <a
+        href={row.url}
+        target="_blank"
+        rel="noreferrer"
+        className="hover:text-accent underline underline-offset-2 transition-colors"
+      >
+        {row.text}
+      </a>
+    );
+  }
+  return <CVLinkedText text={row.text} />;
+}
+
 function CvCompactList({ rows }: { rows: CvRow[] }) {
   return (
     <ul className="cargo-cv-list mt-[0.45em]">
       {rows.map((row, i) => (
         <li key={`${row.year}-${i}`} className="flex whitespace-nowrap">
           <span className="cargo-cv-year">{row.year}</span>
-          <span><CVLinkedText text={row.text} /></span>
+          <span><CvRowText row={row} /></span>
         </li>
       ))}
     </ul>
@@ -167,28 +192,30 @@ function CvProjectList({ rows }: { rows: CvRow[] }) {
       {rows.map((row, i) => (
         <li key={`${row.year}-${i}`} className="whitespace-nowrap">
           <span className="cargo-cv-year">{row.year}</span>
-          <span><CVLinkedText text={row.text} /></span>
+          <span><CvRowText row={row} /></span>
         </li>
       ))}
     </ul>
   );
 }
 
-// The article body is an admin-ordered sequence of text/image blocks. For
-// places that just need a single representative image (index grid, category
-// summaries), prefer the first image actually placed in the article; fall
-// back to the upload pool if the article has no images placed yet.
+// The article body is an admin-ordered sequence of rows (each 1-3 items:
+// text, image, or video). For places that just need a single representative
+// image (index grid, category summaries), prefer the first image actually
+// placed in the article; fall back to the upload pool if the article has no
+// images placed yet.
 function thumbnailFor(entry: Entry): string | undefined {
   if (entry.thumbnail_url) return entry.thumbnail_url;
-  const firstBlockImage = entry.content.find((b) => b.type === "image")?.src;
-  return firstBlockImage ?? entry.gallery[0];
+  const firstImage = flattenItems(entry.content).find((i) => i.type === "image");
+  return (firstImage?.type === "image" ? firstImage.src : undefined) ?? entry.gallery[0];
 }
 
 function firstTextFor(entry: Entry): string {
-  return entry.content.find((b) => b.type === "text")?.text ?? "";
+  const firstText = flattenItems(entry.content).find((i) => i.type === "text");
+  return firstText?.type === "text" ? firstText.text : "";
 }
 
-function Img({ src, alt }: { src: string; alt: string }) {
+function RowImage({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = useState(false);
   const [ratio, setRatio] = useState<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -210,33 +237,28 @@ function Img({ src, alt }: { src: string; alt: string }) {
   };
 
   return (
-    <>
-      {/* next/image resizes/re-encodes these on the fly — content-block
-          photos are uploaded at full camera resolution (several thousand px,
-          several MB), and decoding that just to show it at article width was
-          the actual cause of scroll jank on a project page, not the smooth
-          scroll itself. Real dimensions aren't known ahead of time, so the
-          box starts at a guessed 3:2 ratio and snaps to the real one (read
-          off the loaded img) in the same update that fades it in, before
-          anything is visible at the wrong shape. */}
-      <span
-        className="relative block w-full max-w-[1000px]"
-        style={{ aspectRatio: ratio ?? 3 / 2, maxHeight: 1280 }}
-      >
-        {!loaded ? <Skeleton className="absolute inset-0" /> : null}
-        <Image
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          fill
-          sizes="(max-width: 1000px) 100vw, 1000px"
-          className={`object-contain transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
-          onLoad={handleLoad}
-          onError={() => setLoaded(true)}
-        />
-      </span>
-      <br />
-    </>
+    // next/image resizes/re-encodes these on the fly — content-block photos
+    // are uploaded at full camera resolution (several thousand px, several
+    // MB), and decoding that just to show it at article width was the
+    // actual cause of scroll jank on a project page, not the smooth scroll
+    // itself. Real dimensions aren't known ahead of time, so the box starts
+    // at a guessed 3:2 ratio and snaps to the real one (read off the loaded
+    // img) in the same update that fades it in, before anything is visible
+    // at the wrong shape. Fills whatever width its row/column gives it —
+    // 100% of a full-width row is the same 1000px the old fixed cap gave.
+    <span className="relative block h-full w-full" style={{ aspectRatio: ratio ?? 3 / 2 }}>
+      {!loaded ? <Skeleton className="absolute inset-0" /> : null}
+      <Image
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 1000px) 100vw, 1000px"
+        className={`object-contain transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
+        onLoad={handleLoad}
+        onError={() => setLoaded(true)}
+      />
+    </span>
   );
 }
 
@@ -273,49 +295,6 @@ function Head({ e }: { e: Entry }) {
   );
 }
 
-type VideoEmbed = { src: string; label: string };
-
-// Accepts a bare Vimeo ID (existing data), a full Vimeo URL, or a full
-// YouTube URL, and resolves it to an embeddable iframe src. Anything else is
-// passed through as-is, in case someone pastes an already-formed embed URL.
-function parseVideoEmbed(raw: string): VideoEmbed | null {
-  const value = raw.trim();
-  if (!value) return null;
-
-  if (/^\d+$/.test(value)) {
-    return {
-      src: `https://player.vimeo.com/video/${value}?color=ff50ff&title=0&byline=0&portrait=0`,
-      label: `Vimeo ${value}`,
-    };
-  }
-
-  try {
-    const url = new URL(value);
-    const host = url.hostname.replace(/^www\./, "");
-
-    if (host === "vimeo.com" || host === "player.vimeo.com") {
-      const id = url.pathname.split("/").filter(Boolean).pop();
-      if (id) {
-        return {
-          src: `https://player.vimeo.com/video/${id}?color=ff50ff&title=0&byline=0&portrait=0`,
-          label: `Vimeo ${id}`,
-        };
-      }
-    }
-
-    if (host === "youtube.com" || host === "m.youtube.com" || host === "youtu.be") {
-      const id = url.searchParams.get("v") ?? url.pathname.split("/").filter(Boolean).pop();
-      if (id) {
-        return { src: `https://www.youtube-nocookie.com/embed/${id}`, label: `YouTube ${id}` };
-      }
-    }
-  } catch {
-    // Not a parseable URL — fall through and use it as-is below.
-  }
-
-  return { src: value, label: value };
-}
-
 function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string }) {
   const [loaded, setLoaded] = useState(false);
   return (
@@ -332,17 +311,29 @@ function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string })
   );
 }
 
-function VideoGrid({ videos, title }: { videos: string[]; title: string }) {
-  const embeds = videos
-    .map(parseVideoEmbed)
-    .filter((embed): embed is VideoEmbed => embed !== null);
-
-  if (!embeds.length) return null;
-
+// One row of the article, laid out per its admin-chosen split (full width,
+// half+half, 1/3+2/3, etc.) — text, image, and video items can sit in the
+// same row, side by side.
+function ContentRowView({ row, title }: { row: ContentRow; title: string }) {
+  const fractions = ROW_LAYOUTS[row.layout]?.fractions ?? [1];
   return (
-    <div className="cargo-video-grid">
-      {embeds.map((embed, i) => (
-        <VideoEmbedFrame key={`${embed.src}-${i}`} embed={embed} title={title} />
+    <div
+      className="cargo-content-row"
+      style={{ gridTemplateColumns: fractions.map((f) => `${f}fr`).join(" ") }}
+    >
+      {row.items.map((item, i) => (
+        <div key={i} className="cargo-content-cell">
+          {item.type === "text" ? (
+            <p className={item.text.includes("\n") ? "whitespace-pre-line" : undefined}>{item.text}</p>
+          ) : item.type === "image" ? (
+            <RowImage src={item.src} alt={title} />
+          ) : (
+            (() => {
+              const embed = parseVideoEmbed(item.src);
+              return embed ? <VideoEmbedFrame embed={embed} title={title} /> : null;
+            })()
+          )}
+        </div>
       ))}
     </div>
   );
@@ -354,20 +345,10 @@ function EntryPage({ e }: { e: Entry }) {
       <Head e={e} />
 
       <div className="cargo-reading mt-[1.45em]">
-        {e.content.map((block, i) => (
-          <div key={i} className={i === 0 ? undefined : "mt-[1.45em]"}>
-            {block.type === "text" ? (
-              <p className={block.text.includes("\n") ? "whitespace-pre-line" : undefined}>
-                {block.text}
-              </p>
-            ) : (
-              <Img src={block.src} alt={e.title} />
-            )}
-          </div>
+        {e.content.map((row) => (
+          <ContentRowView key={row.id} row={row} title={e.title} />
         ))}
       </div>
-
-      <VideoGrid videos={e.videos ?? []} title={e.title} />
 
       {e.meta ? <p className="mt-[1.45em]">{e.meta}</p> : null}
     </article>
@@ -449,7 +430,7 @@ function ProjectsPage({
               ) : (
                 <span className="cargo-project-placeholder" aria-hidden="true" />
               )}
-              <span>{entry.title}</span>
+              <span className="cargo-project-preview-title">{entry.title}</span>
               <small>{entry.lines?.[0] ?? ""}</small>
             </button>
           );
@@ -533,7 +514,7 @@ function MotusPage({
               <span className="font-bold">Caliban Cannibal</span>
             </button>
             {thumbnailFor(caliban) ? (
-              <Img src={thumbnailFor(caliban)!} alt="Caliban Cannibal, Motus" />
+              <RowImage src={thumbnailFor(caliban)!} alt="Caliban Cannibal, Motus" />
             ) : null}
           </>
         ) : null}
@@ -547,7 +528,7 @@ function MotusPage({
               <span className="font-bold">CALL ME X</span>
             </button>
             {thumbnailFor(callMeX) ? (
-              <Img src={thumbnailFor(callMeX)!} alt="Call Me X, Motus" />
+              <RowImage src={thumbnailFor(callMeX)!} alt="Call Me X, Motus" />
             ) : null}
           </>
         ) : null}
@@ -599,7 +580,7 @@ function LecturePerformancePage({
               <p className="text-[13px] text-muted">
                 {entry.lines?.filter(Boolean).join(" · ")}
               </p>
-              {lead ? <Img src={lead} alt={entry.title} /> : null}
+              {lead ? <RowImage src={lead} alt={entry.title} /> : null}
               <p className="mt-[0.5em]">{firstTextFor(entry)}</p>
             </section>
           );
@@ -645,7 +626,7 @@ function WritingPublishingPage({
               <p className="text-[13px] text-muted">
                 {entry.lines?.filter(Boolean).join(" · ")}
               </p>
-              {lead ? <Img src={lead} alt={entry.title} /> : null}
+              {lead ? <RowImage src={lead} alt={entry.title} /> : null}
               <p className="mt-[0.5em]">{firstTextFor(entry)}</p>
             </section>
           );
@@ -691,7 +672,7 @@ function ArchivePage({
               <p className="text-[13px] text-muted">
                 {entry.lines?.filter(Boolean).join(" · ")}
               </p>
-              {lead ? <Img src={lead} alt={entry.title} /> : null}
+              {lead ? <RowImage src={lead} alt={entry.title} /> : null}
               <p className="mt-[0.5em]">{firstTextFor(entry)}</p>
             </section>
           );

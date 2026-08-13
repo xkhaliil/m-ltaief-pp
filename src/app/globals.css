@@ -196,19 +196,23 @@ body {
   margin-top: 1.45em;
 }
 
-/* Large Cargo film sheet — one full-width video per row, stacked at the same
-   1.45em rhythm as the rest of the article, aligned with the same 1000px
-   media field as the photographs above. A single column means there's never
-   an orphan empty cell from an odd video count (the old 2-up grid's "ugly
-   whitespace"), and full width reads as a real cinema frame instead of a
-   cramped thumbnail. */
-.cargo-video-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.45em;
+/* Article layout: an admin-ordered stack of rows, each split into 1-3 items
+   (text/image/video, any mix) per its chosen layout — full width, half+half,
+   thirds, etc. Rows stack at the same 1.45em rhythm as the rest of the
+   article; items within a row sit side by side with a tighter gap. */
+.cargo-content-row {
+  display: grid;
+  gap: 12px;
   width: 100%;
   max-width: 1000px;
+}
+
+.cargo-content-row + .cargo-content-row {
   margin-top: 1.45em;
+}
+
+.cargo-content-cell {
+  min-width: 0;
 }
 
 .cargo-video-frame {
@@ -257,12 +261,29 @@ body {
   overflow: hidden;
 }
 
-.cargo-project-preview span,
+/* Title and caption both reserve a fixed 2 lines of height — capped via
+   line-clamp so a long one truncates instead of growing, and floored via
+   min-height so a short one doesn't shrink. Without the floor, line-clamp
+   alone still leaves a 1-line title shorter than a 2-line one; since the
+   grid row's height follows its tallest tile, any unevenness among title/
+   caption heights throws off the alignment of every tile in that row (and
+   pushes the next row down unevenly). Reserving the same space either way
+   means every tile is the same height regardless of how much text it has. */
+.cargo-project-preview-title,
 .cargo-project-preview small {
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cargo-project-preview-title {
+  min-height: 2.6em;
 }
 
 .cargo-project-preview small {
+  min-height: 2.5em;
   margin-top: 2px;
   color: var(--color-quiet);
   font-size: 10px;

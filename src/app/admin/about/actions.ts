@@ -10,10 +10,16 @@ function parseRows(formData: FormData, key: string): CvRow[] {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (row): row is CvRow =>
-        row && typeof row.year === "string" && typeof row.text === "string" && row.text.trim(),
-    );
+    return parsed
+      .filter(
+        (row): row is CvRow =>
+          row && typeof row.year === "string" && typeof row.text === "string" && row.text.trim(),
+      )
+      .map((row) => ({
+        year: row.year,
+        text: row.text,
+        ...(typeof row.url === "string" && row.url.trim() ? { url: row.url.trim() } : {}),
+      }));
   } catch {
     return [];
   }

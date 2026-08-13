@@ -1,12 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { ContentBlock, Project, ProjectLink, ProjectSection } from "@/types/project";
+import type { ContentRow, Project, ProjectLink, ProjectSection } from "@/types/project";
+import { normalizeContent } from "@/lib/content-rows";
 import { saveProject } from "./actions";
 import { StringListEditor } from "./StringListEditor";
 import { LinksEditor } from "./LinksEditor";
 import { GalleryEditor } from "./GalleryEditor";
-import { ContentBlocksEditor } from "./ContentBlocksEditor";
+import { ContentRowsEditor } from "./ContentRowsEditor";
 
 const SECTIONS: { value: ProjectSection; label: string }[] = [
   { value: "main", label: "Main index" },
@@ -51,8 +52,12 @@ export function ProjectForm({ project }: { project: Project | null }) {
   const [subLines, setSubLines] = useState<string[]>(initial.sub_lines);
   const [lines, setLines] = useState<string[]>(initial.lines);
   const [links, setLinks] = useState<ProjectLink[]>(initial.links);
-  const [content, setContent] = useState<ContentBlock[]>(initial.content);
-  const [videos, setVideos] = useState<string[]>(initial.videos);
+  // Video links now live inline as items within content rows — this folds
+  // any legacy `videos` column entries in as their own rows the first time
+  // the project is opened here, and the column is left empty on save.
+  const [content, setContent] = useState<ContentRow[]>(() =>
+    normalizeContent(initial.content, initial.videos),
+  );
   const [meta, setMeta] = useState(initial.meta);
   const [gallery, setGallery] = useState<string[]>(initial.gallery);
 
@@ -63,7 +68,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <input type="hidden" name="lines" value={JSON.stringify(lines)} readOnly />
       <input type="hidden" name="links" value={JSON.stringify(links)} readOnly />
       <input type="hidden" name="content" value={JSON.stringify(content)} readOnly />
-      <input type="hidden" name="videos" value={JSON.stringify(videos)} readOnly />
+      <input type="hidden" name="videos" value="[]" readOnly />
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} readOnly />
 
       <div className={cardClass}>
@@ -164,17 +169,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
         <GalleryEditor projectId={id} items={gallery} onChange={setGallery} />
       </div>
 
-      <ContentBlocksEditor blocks={content} images={gallery} onChange={setContent} />
-
-      <div className={cardClass}>
-        <StringListEditor
-          label="Video links"
-          hint="A Vimeo or YouTube link (e.g. https://vimeo.com/1215280534), or just the Vimeo ID (e.g. 1215280534)."
-          items={videos}
-          onChange={setVideos}
-          placeholder="https://vimeo.com/1215280534"
-        />
-      </div>
+      <ContentRowsEditor rows={content} images={gallery} onChange={setContent} />
 
       <div className={cardClass}>
         <label className="block">
