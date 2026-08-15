@@ -296,11 +296,37 @@ function Head({ e }: { e: Entry }) {
   );
 }
 
+// Vimeo/YouTube's own player letterboxes to the source video's real aspect
+// ratio inside whatever frame we give it — a fixed 16:9 box makes a portrait
+// or square video render small and centered, with dead grey space around it.
+// Fetching the real width/height via oEmbed and sizing the frame to match
+// fixes that; 16:9 stays the placeholder guess until it resolves.
 function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string }) {
   const [loaded, setLoaded] = useState(false);
+  const [ratio, setRatio] = useState<number | null>(null);
   const isAudio = embed.kind === "audio";
+
+  useEffect(() => {
+    if (!embed.oembedUrl) return;
+    let cancelled = false;
+    fetch(embed.oembedUrl)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.width && data?.height) {
+          setRatio(data.width / data.height);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [embed.oembedUrl]);
+
   return (
-    <span className={isAudio ? "cargo-audio-frame" : "cargo-video-frame"}>
+    <span
+      className={isAudio ? "cargo-audio-frame" : "cargo-video-frame"}
+      style={!isAudio && ratio ? { aspectRatio: String(ratio) } : undefined}
+    >
       {!loaded ? <Skeleton className="absolute inset-0" /> : null}
       <iframe
         src={embed.src}

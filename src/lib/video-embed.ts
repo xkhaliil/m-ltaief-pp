@@ -1,4 +1,15 @@
-export type VideoEmbed = { src: string; label: string; kind: "video" | "audio" };
+export type VideoEmbed = {
+  src: string;
+  label: string;
+  kind: "video" | "audio";
+  // Where to fetch the source's real width/height from (Vimeo/YouTube oEmbed).
+  // Vimeo and YouTube players letterbox to the actual video's aspect ratio
+  // inside whatever box we give them — if we just force every embed into a
+  // fixed 16:9 frame, a portrait or square source video renders small and
+  // centered with dead space around it. Fetching the real ratio lets the
+  // frame match the source instead of guessing.
+  oembedUrl?: string;
+};
 
 // Accepts a bare Vimeo ID (existing data), a full Vimeo URL, a full YouTube
 // URL, or a SoundCloud track/set link, and resolves it to an embeddable
@@ -13,6 +24,7 @@ export function parseVideoEmbed(raw: string): VideoEmbed | null {
       src: `https://player.vimeo.com/video/${value}?color=ff50ff&title=0&byline=0&portrait=0`,
       label: `Vimeo ${value}`,
       kind: "video",
+      oembedUrl: `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${value}`)}`,
     };
   }
 
@@ -27,6 +39,7 @@ export function parseVideoEmbed(raw: string): VideoEmbed | null {
           src: `https://player.vimeo.com/video/${id}?color=ff50ff&title=0&byline=0&portrait=0`,
           label: `Vimeo ${id}`,
           kind: "video",
+          oembedUrl: `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`,
         };
       }
     }
@@ -34,7 +47,12 @@ export function parseVideoEmbed(raw: string): VideoEmbed | null {
     if (host === "youtube.com" || host === "m.youtube.com" || host === "youtu.be") {
       const id = url.searchParams.get("v") ?? url.pathname.split("/").filter(Boolean).pop();
       if (id) {
-        return { src: `https://www.youtube-nocookie.com/embed/${id}`, label: `YouTube ${id}`, kind: "video" };
+        return {
+          src: `https://www.youtube-nocookie.com/embed/${id}`,
+          label: `YouTube ${id}`,
+          kind: "video",
+          oembedUrl: `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}`,
+        };
       }
     }
 
