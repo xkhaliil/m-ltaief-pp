@@ -10,6 +10,7 @@ import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROW_LAYOUTS, flattenItems, normalizeContent } from "@/lib/content-rows";
 import { parseVideoEmbed, type VideoEmbed } from "@/lib/video-embed";
+import { sanitizeRichText } from "@/lib/sanitize-html";
 
 // `content` is always normalized (legacy flat blocks + the old `videos`
 // column folded into rows) by the time a Project becomes an Entry — see
@@ -297,12 +298,13 @@ function Head({ e }: { e: Entry }) {
 
 function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string }) {
   const [loaded, setLoaded] = useState(false);
+  const isAudio = embed.kind === "audio";
   return (
-    <span className="cargo-video-frame">
+    <span className={isAudio ? "cargo-audio-frame" : "cargo-video-frame"}>
       {!loaded ? <Skeleton className="absolute inset-0" /> : null}
       <iframe
         src={embed.src}
-        allow="autoplay; fullscreen; picture-in-picture"
+        allow={isAudio ? "autoplay" : "autoplay; fullscreen; picture-in-picture"}
         title={`${title} — ${embed.label}`}
         onLoad={() => setLoaded(true)}
         className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
@@ -324,7 +326,7 @@ function ContentRowView({ row, title }: { row: ContentRow; title: string }) {
       {row.items.map((item, i) => (
         <div key={i} className="cargo-content-cell">
           {item.type === "text" ? (
-            <p className={item.text.includes("\n") ? "whitespace-pre-line" : undefined}>{item.text}</p>
+            <div className="cargo-rich-text" dangerouslySetInnerHTML={{ __html: sanitizeRichText(item.text) }} />
           ) : item.type === "image" ? (
             <RowImage src={item.src} alt={title} />
           ) : (
@@ -721,28 +723,28 @@ function AboutPage({ profile }: { profile: Profile }) {
 
       {profile.works.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">selected performance / theater &amp; project(s)</h2>
+          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.works_title}</h2>
           <CvProjectList rows={profile.works} />
         </>
       ) : null}
 
       {profile.lectures.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">selected lecture performances</h2>
+          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.lectures_title}</h2>
           <CvCompactList rows={profile.lectures} />
         </>
       ) : null}
 
       {profile.awards.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">Awards and Grants</h2>
+          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.awards_title}</h2>
           <CvCompactList rows={profile.awards} />
         </>
       ) : null}
 
       {profile.residencies.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">Fellowships / Residencies</h2>
+          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.residencies_title}</h2>
           <CvCompactList rows={profile.residencies} />
         </>
       ) : null}

@@ -25,6 +25,7 @@ import type { ContentItem, ContentRow, RowLayout } from "@/types/project";
 import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId } from "@/lib/content-rows";
 import { parseVideoEmbed } from "@/lib/video-embed";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 type EditableItem = ContentItem & { _id: string };
 type EditableRow = { id: string; layout: RowLayout; items: EditableItem[] };
@@ -418,7 +419,7 @@ function EmptySlot({ images, onAdd }: { images: string[]; onAdd: (item: ContentI
         onClick={() => onAdd({ type: "video", src: "" })}
         className="w-full rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       >
-        + Video
+        + Video / Audio
       </button>
     </div>
   );
@@ -472,25 +473,19 @@ function ItemCard({
       </div>
 
       {item.type === "text" ? (
-        <textarea
-          value={item.text}
-          onChange={(e) => onUpdate({ type: "text", text: e.target.value })}
-          rows={4}
-          placeholder="Text…"
-          className={cardInputClass}
-        />
+        <RichTextEditor value={item.text} onChange={(html) => onUpdate({ type: "text", text: html })} />
       ) : item.type === "image" ? (
         <div className="space-y-1.5">
           {item.src ? (
             <ImageWithSkeleton
               src={item.src}
               alt=""
-              wrapperClassName="aspect-square w-full rounded bg-slate-200 dark:bg-slate-700"
+              wrapperClassName="aspect-square w-full max-w-[200px] rounded bg-slate-200 dark:bg-slate-700"
               className="rounded"
               sizes="200px"
             />
           ) : (
-            <div className="aspect-square w-full rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="aspect-square w-full max-w-[200px] rounded bg-slate-200 dark:bg-slate-700" />
           )}
           <select
             value={item.src}
@@ -511,22 +506,27 @@ function ItemCard({
         <div className="space-y-1.5">
           {(() => {
             const embed = item.src ? parseVideoEmbed(item.src) : null;
-            return embed ? (
+            if (!embed) {
+              return (
+                <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-200 dark:bg-slate-700 text-[10px] text-slate-400 dark:text-slate-600">
+                  Paste a link below
+                </div>
+              );
+            }
+            return embed.kind === "audio" ? (
+              <iframe src={embed.src} className="h-[166px] w-full rounded border-0" title={embed.label} />
+            ) : (
               <iframe
                 src={embed.src}
                 className="aspect-video w-full rounded border-0"
                 title={embed.label}
               />
-            ) : (
-              <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-200 dark:bg-slate-700 text-[10px] text-slate-400 dark:text-slate-600">
-                Paste a link below
-              </div>
             );
           })()}
           <input
             value={item.src}
             onChange={(e) => onUpdate({ type: "video", src: e.target.value })}
-            placeholder="Vimeo/YouTube link or Vimeo ID"
+            placeholder="Vimeo/YouTube link, SoundCloud link, or Vimeo ID"
             className={cardInputClass}
           />
         </div>

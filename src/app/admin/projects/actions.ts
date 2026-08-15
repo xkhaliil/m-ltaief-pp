@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ContentItem, ContentRow, ProjectLink, ProjectSection, RowLayout } from "@/types/project";
 import { ROW_LAYOUTS } from "@/lib/content-rows";
+import { sanitizeRichText } from "@/lib/sanitize-html";
 
 const SECTIONS: ProjectSection[] = [
   "main",
@@ -31,13 +32,23 @@ function defaultLayoutForCount(count: number): RowLayout {
   return "thirds";
 }
 
-function isValidItem(item: unknown): item is ContentItem {
-  if (!item || typeof item !== "object") return false;
+function sanitizeItem(item: unknown): ContentItem | null {
+  if (!item || typeof item !== "object") return null;
   const i = item as Record<string, unknown>;
-  if (i.type === "text") return typeof i.text === "string" && i.text.trim().length > 0;
-  if (i.type === "image") return typeof i.src === "string" && i.src.trim().length > 0;
-  if (i.type === "video") return typeof i.src === "string" && i.src.trim().length > 0;
-  return false;
+  // Text items are authored with a rich-text editor (TipTap) and stored as
+  // HTML — this is the actual trust boundary before that HTML is later
+  // rendered with dangerouslySetInnerHTML on the public site.
+  if (i.type === "text" && typeof i.text === "string") {
+    const text = sanitizeRichText(i.text).trim();
+    return text ? { type: "text", text } : null;
+  }
+  if (i.type === "image" && typeof i.src === "string" && i.src.trim()) {
+    return { type: "image", src: i.src.trim() };
+  }
+  if (i.type === "video" && typeof i.src === "string" && i.src.trim()) {
+    return { type: "video", src: i.src.trim() };
+  }
+  return null;
 }
 
 // Defense in depth: the admin editor keeps each row's item count in sync
@@ -52,7 +63,10 @@ function sanitizeRows(raw: unknown[]): ContentRow[] {
     const r = row as Record<string, unknown>;
     if (typeof r.id !== "string" || !Array.isArray(r.items)) continue;
 
-    const items = r.items.filter(isValidItem).slice(0, 3);
+    const items = r.items
+      .map(sanitizeItem)
+      .filter((item): item is ContentItem => item !== null)
+      .slice(0, 3);
     if (items.length === 0) continue;
 
     const requestedLayout = typeof r.layout === "string" ? (r.layout as RowLayout) : undefined;

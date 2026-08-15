@@ -196,6 +196,92 @@ body {
   margin-top: 1.45em;
 }
 
+/* Rich-text output for a content-row text item — inherits the same reading
+   register as .cargo-reading (it's always nested inside one), just adds
+   rules for the marks/nodes RichTextEditor (TipTap) can actually produce.
+   pre-line preserves line breaks from legacy plain-text rows saved before
+   rich text shipped, and is a no-op for new content since TipTap uses real
+   <p> tags rather than embedded newlines. */
+.cargo-rich-text {
+  white-space: pre-line;
+}
+
+.cargo-rich-text p + p {
+  margin-top: 1.45em;
+}
+
+.cargo-rich-text a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+
+.cargo-rich-text a:hover {
+  color: var(--color-accent);
+}
+
+.cargo-rich-text h2,
+.cargo-rich-text h3 {
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.cargo-rich-text h2 {
+  margin: 1.45em 0 0.4em;
+  font-size: 1.3em;
+}
+
+.cargo-rich-text h3 {
+  margin: 1.45em 0 0.4em;
+  font-size: 1.1em;
+}
+
+.cargo-rich-text ul,
+.cargo-rich-text ol {
+  margin-top: 0.6em;
+  padding-left: 1.4em;
+}
+
+.cargo-rich-text ul {
+  list-style: disc;
+}
+
+.cargo-rich-text ol {
+  list-style: decimal;
+}
+
+.cargo-rich-text li + li {
+  margin-top: 0.3em;
+}
+
+/* The admin's TipTap editing surface — same reading register as the public
+   output above, so what you type looks close to how it'll actually render. */
+.cargo-rich-editor-content {
+  min-height: 96px;
+  padding: 8px 10px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  outline: none;
+}
+
+.cargo-rich-editor-content p {
+  margin: 0 0 0.8em;
+}
+
+.cargo-rich-editor-content p:last-child {
+  margin-bottom: 0;
+}
+
+.cargo-rich-editor-content .is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--color-faint);
+  pointer-events: none;
+}
+
 /* Article layout: an admin-ordered stack of rows, each split into 1-3 items
    (text/image/video, any mix) per its chosen layout — full width, half+half,
    thirds, etc. Rows stack at the same 1.45em rhythm as the rest of the
@@ -220,6 +306,14 @@ body {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
+  background: var(--color-surface);
+}
+
+.cargo-audio-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 166px;
   background: var(--color-surface);
 }
 

@@ -9,6 +9,10 @@ export type Profile = {
   deutsch_url: string;
   index_label: string;
   index_subtitle: string;
+  works_title: string;
+  lectures_title: string;
+  awards_title: string;
+  residencies_title: string;
   works: CvRow[];
   lectures: CvRow[];
   awards: CvRow[];
@@ -25,6 +29,10 @@ export const EMPTY_PROFILE: Profile = {
   deutsch_url: "",
   index_label: "/ˈɪndɛks/",
   index_subtitle: "Selected works, 2011 — 2026",
+  works_title: "selected performance / theater & project(s)",
+  lectures_title: "selected lecture performances",
+  awards_title: "Awards and Grants",
+  residencies_title: "Fellowships / Residencies",
   works: [],
   lectures: [],
   awards: [],

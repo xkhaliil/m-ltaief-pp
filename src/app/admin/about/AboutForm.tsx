@@ -17,6 +17,10 @@ export function AboutForm({ profile }: { profile: Profile }) {
   const [email, setEmail] = useState(profile.email);
   const [bioPdfUrl, setBioPdfUrl] = useState(profile.bio_pdf_url);
   const [deutschUrl, setDeutschUrl] = useState(profile.deutsch_url);
+  const [worksTitle, setWorksTitle] = useState(profile.works_title);
+  const [lecturesTitle, setLecturesTitle] = useState(profile.lectures_title);
+  const [awardsTitle, setAwardsTitle] = useState(profile.awards_title);
+  const [residenciesTitle, setResidenciesTitle] = useState(profile.residencies_title);
   const [works, setWorks] = useState(profile.works);
   const [lectures, setLectures] = useState(profile.lectures);
   const [awards, setAwards] = useState(profile.awards);
@@ -90,6 +94,16 @@ export function AboutForm({ profile }: { profile: Profile }) {
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
+        <label className="mb-4 block">
+          <span className={labelClass}>Section title</span>
+          <input
+            name="works_title"
+            required
+            value={worksTitle}
+            onChange={(e) => setWorksTitle(e.target.value)}
+            className={inputClass}
+          />
+        </label>
         <YearTextListEditor
           label="Selected performance / theater & project(s)"
           items={works}
@@ -98,6 +112,16 @@ export function AboutForm({ profile }: { profile: Profile }) {
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
+        <label className="mb-4 block">
+          <span className={labelClass}>Section title</span>
+          <input
+            name="lectures_title"
+            required
+            value={lecturesTitle}
+            onChange={(e) => setLecturesTitle(e.target.value)}
+            className={inputClass}
+          />
+        </label>
         <YearTextListEditor
           label="Selected lecture performances"
           items={lectures}
@@ -106,10 +130,30 @@ export function AboutForm({ profile }: { profile: Profile }) {
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
+        <label className="mb-4 block">
+          <span className={labelClass}>Section title</span>
+          <input
+            name="awards_title"
+            required
+            value={awardsTitle}
+            onChange={(e) => setAwardsTitle(e.target.value)}
+            className={inputClass}
+          />
+        </label>
         <YearTextListEditor label="Awards and Grants" items={awards} onChange={setAwards} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
+        <label className="mb-4 block">
+          <span className={labelClass}>Section title</span>
+          <input
+            name="residencies_title"
+            required
+            value={residenciesTitle}
+            onChange={(e) => setResidenciesTitle(e.target.value)}
+            className={inputClass}
+          />
+        </label>
         <YearTextListEditor
           label="Fellowships / Residencies"
           items={residencies}
