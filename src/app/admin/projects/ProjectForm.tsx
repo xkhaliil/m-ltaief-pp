@@ -8,6 +8,7 @@ import { StringListEditor } from "./StringListEditor";
 import { LinksEditor } from "./LinksEditor";
 import { GalleryEditor } from "./GalleryEditor";
 import { ContentRowsEditor } from "./ContentRowsEditor";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 const SECTIONS: { value: ProjectSection; label: string }[] = [
   { value: "main", label: "Main index" },
@@ -70,6 +71,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <input type="hidden" name="content" value={JSON.stringify(content)} readOnly />
       <input type="hidden" name="videos" value="[]" readOnly />
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} readOnly />
+      <input type="hidden" name="meta" value={meta} readOnly />
 
       <div className={cardClass}>
         <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Details</h3>
@@ -172,16 +174,8 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <ContentRowsEditor rows={content} images={gallery} onChange={setContent} />
 
       <div className={cardClass}>
-        <label className="block">
-          <span className={labelClass}>Credits / metadata</span>
-          <textarea
-            name="meta"
-            rows={3}
-            value={meta}
-            onChange={(e) => setMeta(e.target.value)}
-            className={inputClass}
-          />
-        </label>
+        <span className={labelClass}>Credits / metadata</span>
+        <RichTextEditor value={meta} onChange={setMeta} placeholder="Credits / metadata…" />
       </div>
 
       {state?.error ? (

@@ -1,13 +1,14 @@
 "use client";
 
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type Props = {
   value: string;
@@ -16,6 +17,14 @@ type Props = {
 };
 
 const COLORS = ["#000000", "#ff50ff", "#777777", "#b91c1c", "#1d4ed8"];
+
+type Align = "left" | "center" | "right" | "justify";
+const ALIGNMENTS: { value: Align; label: string }[] = [
+  { value: "left", label: "Align left" },
+  { value: "center", label: "Align center" },
+  { value: "right", label: "Align right" },
+  { value: "justify", label: "Justify" },
+];
 
 // Uncontrolled by design: `value` seeds the editor once on mount (each item
 // card has a stable key, so it never remounts under your cursor), and every
@@ -29,6 +38,7 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
       Link.configure({ openOnClick: false, autolink: true }),
       TextStyle,
       Color,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder: placeholder ?? "Text…" }),
     ],
     content: value,
@@ -116,6 +126,10 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
 
         <Divider />
 
+        <AlignMenu editor={editor} />
+
+        <Divider />
+
         {COLORS.map((color) => (
           <button
             key={color}
@@ -170,5 +184,66 @@ function ToolbarButton({
     >
       {children}
     </button>
+  );
+}
+
+// Small popover of the four alignment options, opened from a single toolbar
+// button showing the current alignment — same pattern as the doc-editor
+// alignment control this was modeled after.
+function AlignMenu({ editor }: { editor: Editor }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  const current = ALIGNMENTS.find((a) => editor.isActive({ textAlign: a.value }))?.value ?? "left";
+
+  return (
+    <div ref={rootRef} className="relative">
+      <ToolbarButton active={open} onClick={() => setOpen((v) => !v)} label="Text alignment">
+        <span className="flex items-center gap-0.5">
+          <AlignIcon value={current} />
+          <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </ToolbarButton>
+      {open ? (
+        <div className="absolute left-0 top-full z-10 mt-1 flex gap-0.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-lg">
+          {ALIGNMENTS.map((a) => (
+            <ToolbarButton
+              key={a.value}
+              active={current === a.value}
+              label={a.label}
+              onClick={() => {
+                editor.chain().focus().setTextAlign(a.value).run();
+                setOpen(false);
+              }}
+            >
+              <AlignIcon value={a.value} />
+            </ToolbarButton>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AlignIcon({ value }: { value: Align }) {
+  const widths = [9, value === "justify" ? 9 : 7, 9, value === "justify" ? 9 : 7];
+  const xs = { left: [1, 1, 1, 1], center: [1, 1.5, 1, 1.5], right: [1, 3, 1, 3], justify: [1, 1, 1, 1] }[value];
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      {widths.map((w, i) => (
+        <rect key={i} x={xs[i]} y={1 + i * 3} width={w} height="1.4" rx="0.7" fill="currentColor" />
+      ))}
+    </svg>
   );
 }

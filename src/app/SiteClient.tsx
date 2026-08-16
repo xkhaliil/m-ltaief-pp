@@ -378,7 +378,12 @@ function EntryPage({ e }: { e: Entry }) {
         ))}
       </div>
 
-      {e.meta ? <p className="mt-[1.45em]">{e.meta}</p> : null}
+      {e.meta ? (
+        <div
+          className="cargo-rich-text mt-[1.45em]"
+          dangerouslySetInnerHTML={{ __html: sanitizeRichText(e.meta) }}
+        />
+      ) : null}
     </article>
   );
 }

@@ -90,7 +90,9 @@ export async function saveProject(
   const position = Number(formData.get("position") ?? 0);
   const title = String(formData.get("title") ?? "").trim();
   const navLabelRaw = String(formData.get("nav_label") ?? "").trim();
-  const meta = String(formData.get("meta") ?? "");
+  // Authored with the same rich-text editor as content-row text items —
+  // same trust boundary before it's later rendered with dangerouslySetInnerHTML.
+  const meta = sanitizeRichText(String(formData.get("meta") ?? "")).trim();
 
   if (!id) return { error: "Internal ID is required." };
   if (!/^[a-z0-9-]+$/.test(id)) {
