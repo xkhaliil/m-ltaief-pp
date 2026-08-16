@@ -3,12 +3,11 @@
 import type { CvRow } from "@/types/profile";
 
 type Props = {
-  label: string;
   items: CvRow[];
   onChange: (items: CvRow[]) => void;
 };
 
-export function YearTextListEditor({ label, items, onChange }: Props) {
+export function YearTextListEditor({ items, onChange }: Props) {
   const update = (index: number, patch: Partial<CvRow>) => {
     const next = [...items];
     next[index] = { ...next[index], ...patch };
@@ -29,8 +28,7 @@ export function YearTextListEditor({ label, items, onChange }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{label}</span>
+      <div className="flex items-center justify-end">
         <button
           type="button"
           onClick={() => onChange([{ year: "", text: "", url: "" }, ...items])}

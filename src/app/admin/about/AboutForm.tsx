@@ -95,70 +95,58 @@ export function AboutForm({ profile }: { profile: Profile }) {
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <label className="mb-4 block">
-          <span className={labelClass}>Section title</span>
+          <span className={labelClass}>Section title (shown on the public About page)</span>
           <input
             name="works_title"
             required
             value={worksTitle}
             onChange={(e) => setWorksTitle(e.target.value)}
-            className={inputClass}
+            className={`${inputClass} font-semibold`}
           />
         </label>
-        <YearTextListEditor
-          label="Selected performance / theater & project(s)"
-          items={works}
-          onChange={setWorks}
-        />
+        <YearTextListEditor items={works} onChange={setWorks} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <label className="mb-4 block">
-          <span className={labelClass}>Section title</span>
+          <span className={labelClass}>Section title (shown on the public About page)</span>
           <input
             name="lectures_title"
             required
             value={lecturesTitle}
             onChange={(e) => setLecturesTitle(e.target.value)}
-            className={inputClass}
+            className={`${inputClass} font-semibold`}
           />
         </label>
-        <YearTextListEditor
-          label="Selected lecture performances"
-          items={lectures}
-          onChange={setLectures}
-        />
+        <YearTextListEditor items={lectures} onChange={setLectures} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <label className="mb-4 block">
-          <span className={labelClass}>Section title</span>
+          <span className={labelClass}>Section title (shown on the public About page)</span>
           <input
             name="awards_title"
             required
             value={awardsTitle}
             onChange={(e) => setAwardsTitle(e.target.value)}
-            className={inputClass}
+            className={`${inputClass} font-semibold`}
           />
         </label>
-        <YearTextListEditor label="Awards and Grants" items={awards} onChange={setAwards} />
+        <YearTextListEditor items={awards} onChange={setAwards} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <label className="mb-4 block">
-          <span className={labelClass}>Section title</span>
+          <span className={labelClass}>Section title (shown on the public About page)</span>
           <input
             name="residencies_title"
             required
             value={residenciesTitle}
             onChange={(e) => setResidenciesTitle(e.target.value)}
-            className={inputClass}
+            className={`${inputClass} font-semibold`}
           />
         </label>
-        <YearTextListEditor
-          label="Fellowships / Residencies"
-          items={residencies}
-          onChange={setResidencies}
-        />
+        <YearTextListEditor items={residencies} onChange={setResidencies} />
       </div>
 
       {state?.error ? (
