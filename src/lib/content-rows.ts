@@ -93,6 +93,35 @@ export function isWebLink(src: string): boolean {
   return /^https?:\/\//i.test(src.trim());
 }
 
+// Resolves a pasted PDF link to something embeddable with a real,
+// page-by-page reader — not just a link out. Google Drive/Docs share links
+// (any of the URL shapes Drive itself generates) become Drive's own
+// `/preview` viewer, which has built-in page navigation, zoom, and search.
+// Anything else is passed through as-is: pointing an <iframe> straight at a
+// direct .pdf URL falls back on the browser's own native PDF viewer, which
+// also paginates.
+export function pdfEmbedSrc(src: string): string {
+  const value = src.trim();
+  try {
+    const url = new URL(value);
+    const host = url.hostname.replace(/^www\./, "");
+    if (host === "drive.google.com") {
+      const fileIdFromPath = url.pathname.match(/\/d\/([^/]+)/)?.[1];
+      const id = fileIdFromPath ?? url.searchParams.get("id");
+      if (id) return `https://drive.google.com/file/d/${id}/preview`;
+    }
+    if (host === "docs.google.com") {
+      // Docs/Sheets/Slides links already end in an action segment
+      // (/edit, /view, /pub, …) — swap it for /preview the same way.
+      const pathname = url.pathname.replace(/\/(edit|view|pub)$/, "/preview");
+      return `https://docs.google.com${pathname}`;
+    }
+  } catch {
+    // Not a parseable URL — fall through and use it as-is below.
+  }
+  return value;
+}
+
 let clientIdCounter = 0;
 
 // Client-only id for new rows/items created interactively in the admin —

@@ -22,7 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ContentItem, ContentRow, RowLayout } from "@/types/project";
-import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId, pdfLabel, isWebLink } from "@/lib/content-rows";
+import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId, pdfLabel, pdfEmbedSrc, isWebLink } from "@/lib/content-rows";
 import { parseVideoEmbed } from "@/lib/video-embed";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -539,10 +539,14 @@ function ItemCard({
         </div>
       ) : (
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2 rounded bg-slate-200 dark:bg-slate-700 px-2.5 py-3 text-[11px] text-slate-600 dark:text-slate-300">
-            <PdfGlyph />
-            <span className="truncate">{item.src ? pdfLabel(item.src) : "Paste a link below"}</span>
-          </div>
+          {item.src && isWebLink(item.src) ? (
+            <iframe src={pdfEmbedSrc(item.src)} className="h-64 w-full rounded border-0" title={pdfLabel(item.src)} />
+          ) : (
+            <div className="flex items-center gap-2 rounded bg-slate-200 dark:bg-slate-700 px-2.5 py-3 text-[11px] text-slate-600 dark:text-slate-300">
+              <PdfGlyph />
+              <span className="truncate">{item.src ? pdfLabel(item.src) : "Paste a link below"}</span>
+            </div>
+          )}
           <input
             value={item.src}
             onChange={(e) => onUpdate({ type: "pdf", src: e.target.value })}

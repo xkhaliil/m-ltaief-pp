@@ -8,7 +8,7 @@ import { EMPTY_PROFILE } from "@/types/profile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROW_LAYOUTS, flattenItems, normalizeContent, pdfLabel, isWebLink } from "@/lib/content-rows";
+import { ROW_LAYOUTS, flattenItems, normalizeContent, pdfLabel, pdfEmbedSrc, isWebLink } from "@/lib/content-rows";
 import { parseVideoEmbed, type VideoEmbed } from "@/lib/video-embed";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 
@@ -341,31 +341,45 @@ function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string })
 
 // A PDF item is always just a link to somewhere the file is already hosted
 // (Google Drive/Docs share link, etc.) — never a file we store ourselves —
-// so this renders as a plain document card, not an embed.
-function PdfLink({ src }: { src: string }) {
+// but it renders as an actual in-page, page-by-page reader (Drive's own
+// /preview viewer for Drive/Docs links, the browser's native PDF viewer for
+// a direct .pdf link), not just a link out to click away from the article.
+function PdfEmbed({ src }: { src: string }) {
+  const [loaded, setLoaded] = useState(false);
   // Guards against already-saved bad data (e.g. a "file:///Users/…" path
   // pasted before this validation existed) — a link that can never open for
   // a visitor is worse than no link at all.
   if (!isWebLink(src)) return null;
   const label = pdfLabel(src);
   return (
-    <a
-      href={src}
-      target="_blank"
-      rel="noreferrer"
-      className="flex items-center gap-2 rounded border border-border px-3 py-3 text-[13px] transition-colors hover:text-accent"
-    >
-      <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0" aria-hidden="true">
-        <path
-          d="M3.5 1.5h6L12.5 5v9a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5Z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1"
+    <div>
+      <span className="cargo-pdf-frame">
+        {!loaded ? <Skeleton className="absolute inset-0" /> : null}
+        <iframe
+          src={pdfEmbedSrc(src)}
+          title={label}
+          onLoad={() => setLoaded(true)}
+          className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
         />
-        <path d="M9.5 1.5V5h3" fill="none" stroke="currentColor" strokeWidth="1" />
-      </svg>
-      <span className="truncate underline-offset-2 hover:underline">{label}</span>
-    </a>
+      </span>
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        className="cargo-pdf-open-link mt-1.5 flex items-center gap-1.5 text-[12px] transition-colors hover:text-accent"
+      >
+        <svg width="13" height="13" viewBox="0 0 16 16" className="shrink-0" aria-hidden="true">
+          <path
+            d="M3.5 1.5h6L12.5 5v9a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          />
+          <path d="M9.5 1.5V5h3" fill="none" stroke="currentColor" strokeWidth="1" />
+        </svg>
+        <span className="truncate underline-offset-2 hover:underline">{label} — open in new tab ↗</span>
+      </a>
+    </div>
   );
 }
 
@@ -391,7 +405,7 @@ function ContentRowView({ row, title }: { row: ContentRow; title: string }) {
               return embed ? <VideoEmbedFrame embed={embed} title={title} /> : null;
             })()
           ) : (
-            <PdfLink src={item.src} />
+            <PdfEmbed src={item.src} />
           )}
         </div>
       ))}
