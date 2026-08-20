@@ -302,7 +302,7 @@ function Head({ e }: { e: Entry }) {
                 href={l.href}
                 target="_blank"
                 rel="noreferrer"
-                className="text-accent hover:underline underline-offset-2"
+                className="hover:text-accent hover:underline underline-offset-2 transition-colors"
               >
                 {l.label}
               </a>
@@ -947,9 +947,15 @@ export function SiteClient({
             })}
 
             <div className="mt-[1.35em]">
-              <a href="mailto:mdaliltf@gmail.com" className="hover:text-accent transition-colors block">
-                email: mdaliltf@gmail.com
-              </a>
+              <p>
+                Email:{" "}
+                <a
+                  href="mailto:mdaliltf@gmail.com"
+                  className="hover:text-accent hover:underline underline-offset-2 transition-colors"
+                >
+                  mdaliltf@gmail.com
+                </a>
+              </p>
               <p>2026 © Mohamed-Ali Ltaief</p>
             </div>
             {entry &&
