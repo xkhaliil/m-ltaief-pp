@@ -22,6 +22,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* Loaded as a plain stylesheet (not next/font) so the literal family
+            name "Libre Baskerville" — the value RichTextEditor's typography
+            picker writes into stored article HTML — actually resolves;
+            next/font renames the family internally, which would break that
+            reference wherever it's later rendered. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        />
       </head>
       <body className="bg-paper text-ink antialiased">
         <SmoothScroll />

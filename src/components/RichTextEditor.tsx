@@ -7,6 +7,7 @@ import Link from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
+import FontFamily from "@tiptap/extension-font-family";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -26,6 +27,19 @@ const ALIGNMENTS: { value: Align; label: string }[] = [
   { value: "justify", label: "Justify" },
 ];
 
+// `family` is null for "Default" (unsets the mark, falling back to the
+// site's normal body font) — the other two are set as a literal CSS
+// font-family value via TipTap's inline style, so whatever @font-face
+// registers that exact name (Libre Baskerville is loaded in layout.tsx)
+// picks it up wherever the stored HTML later renders. TT Norms Pro is a
+// paid font we don't have license files for yet, so for now it just falls
+// through to the sans-serif fallback until real files are supplied.
+const FONTS: { label: string; family: string | null; preview: string }[] = [
+  { label: "Default", family: null, preview: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+  { label: "Libre Baskerville", family: "'Libre Baskerville', serif", preview: "'Libre Baskerville', serif" },
+  { label: "TT Norms Pro", family: "'TT Norms Pro', sans-serif", preview: "'TT Norms Pro', sans-serif" },
+];
+
 // Uncontrolled by design: `value` seeds the editor once on mount (each item
 // card has a stable key, so it never remounts under your cursor), and every
 // keystroke flows out via onChange. Re-syncing content on every prop change
@@ -38,6 +52,7 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
       Link.configure({ openOnClick: false, autolink: true }),
       TextStyle,
       Color,
+      FontFamily,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder: placeholder ?? "Text…" }),
     ],
@@ -123,6 +138,10 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
         <ToolbarButton active={editor.isActive("link")} onClick={setLink} label="Link">
           Link
         </ToolbarButton>
+
+        <Divider />
+
+        <FontMenu editor={editor} />
 
         <Divider />
 
@@ -229,6 +248,61 @@ function AlignMenu({ editor }: { editor: Editor }) {
             >
               <AlignIcon value={a.value} />
             </ToolbarButton>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// Same open/close popover pattern as AlignMenu, listing each typeface name
+// set in its own font so it doubles as a preview.
+function FontMenu({ editor }: { editor: Editor }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  const currentFamily = editor.getAttributes("textStyle").fontFamily as string | undefined;
+  const current = FONTS.find((f) => f.family === currentFamily) ?? FONTS[0];
+
+  return (
+    <div ref={rootRef} className="relative">
+      <ToolbarButton active={open} onClick={() => setOpen((v) => !v)} label="Typography">
+        <span className="flex items-center gap-1 px-0.5">
+          <span style={{ fontFamily: current.preview }}>Aa</span>
+          <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </ToolbarButton>
+      {open ? (
+        <div className="absolute left-0 top-full z-10 mt-1 flex min-w-[170px] flex-col gap-0.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-lg">
+          {FONTS.map((f) => (
+            <button
+              key={f.label}
+              type="button"
+              onClick={() => {
+                if (f.family) editor.chain().focus().setFontFamily(f.family).run();
+                else editor.chain().focus().unsetFontFamily().run();
+                setOpen(false);
+              }}
+              className={`rounded px-2 py-1 text-left text-sm transition-colors ${
+                current.label === f.label
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+              style={{ fontFamily: f.preview }}
+            >
+              {f.label}
+            </button>
           ))}
         </div>
       ) : null}
