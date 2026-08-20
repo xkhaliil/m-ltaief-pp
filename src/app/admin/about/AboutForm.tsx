@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { Profile } from "@/types/profile";
+import type { HeadingFonts, Profile } from "@/types/profile";
 import { saveProfile } from "./actions";
 import { YearTextListEditor } from "./YearTextListEditor";
+import { FontPickerInput } from "@/components/FontPickerInput";
 
 const inputClass =
   "w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100";
@@ -21,10 +22,19 @@ export function AboutForm({ profile }: { profile: Profile }) {
   const [lecturesTitle, setLecturesTitle] = useState(profile.lectures_title);
   const [awardsTitle, setAwardsTitle] = useState(profile.awards_title);
   const [residenciesTitle, setResidenciesTitle] = useState(profile.residencies_title);
+  const [headingFonts, setHeadingFonts] = useState<HeadingFonts>(profile.heading_fonts ?? {});
   const [works, setWorks] = useState(profile.works);
   const [lectures, setLectures] = useState(profile.lectures);
   const [awards, setAwards] = useState(profile.awards);
   const [residencies, setResidencies] = useState(profile.residencies);
+
+  const setFont = (key: keyof HeadingFonts) => (font: string | null) =>
+    setHeadingFonts((prev) => {
+      const next = { ...prev };
+      if (font) next[key] = font;
+      else delete next[key];
+      return next;
+    });
 
   return (
     <form action={formAction} className="space-y-5">
@@ -32,31 +42,32 @@ export function AboutForm({ profile }: { profile: Profile }) {
       <input type="hidden" name="lectures" value={JSON.stringify(lectures)} readOnly />
       <input type="hidden" name="awards" value={JSON.stringify(awards)} readOnly />
       <input type="hidden" name="residencies" value={JSON.stringify(residencies)} readOnly />
+      <input type="hidden" name="heading_fonts" value={JSON.stringify(headingFonts)} readOnly />
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
         <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Bio</h3>
         <div className="space-y-4">
-          <label className="block">
-            <span className={labelClass}>Name</span>
-            <input
-              name="name"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={inputClass}
-            />
-          </label>
+          <FontPickerInput
+            label="Name"
+            name="name"
+            required
+            value={name}
+            onChange={setName}
+            font={headingFonts.name ?? null}
+            onFontChange={setFont("name")}
+            inputClassName={inputClass}
+          />
 
-          <label className="block">
-            <span className={labelClass}>Tagline</span>
-            <input
-              name="tagline"
-              value={tagline}
-              onChange={(e) => setTagline(e.target.value)}
-              placeholder="Lives and works between Berlin and Tunis"
-              className={inputClass}
-            />
-          </label>
+          <FontPickerInput
+            label="Tagline"
+            name="tagline"
+            value={tagline}
+            onChange={setTagline}
+            placeholder="Lives and works between Berlin and Tunis"
+            font={headingFonts.tagline ?? null}
+            onFontChange={setFont("tagline")}
+            inputClassName={inputClass}
+          />
 
           <label className="block">
             <span className={labelClass}>Email</span>
@@ -94,58 +105,66 @@ export function AboutForm({ profile }: { profile: Profile }) {
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
-        <label className="mb-4 block">
-          <span className={labelClass}>Section title (shown on the public About page)</span>
-          <input
+        <div className="mb-4">
+          <FontPickerInput
+            label="Section title (shown on the public About page)"
             name="works_title"
             required
             value={worksTitle}
-            onChange={(e) => setWorksTitle(e.target.value)}
-            className={`${inputClass} font-semibold`}
+            onChange={setWorksTitle}
+            font={headingFonts.works_title ?? null}
+            onFontChange={setFont("works_title")}
+            inputClassName={`${inputClass} font-semibold`}
           />
-        </label>
+        </div>
         <YearTextListEditor items={works} onChange={setWorks} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
-        <label className="mb-4 block">
-          <span className={labelClass}>Section title (shown on the public About page)</span>
-          <input
+        <div className="mb-4">
+          <FontPickerInput
+            label="Section title (shown on the public About page)"
             name="lectures_title"
             required
             value={lecturesTitle}
-            onChange={(e) => setLecturesTitle(e.target.value)}
-            className={`${inputClass} font-semibold`}
+            onChange={setLecturesTitle}
+            font={headingFonts.lectures_title ?? null}
+            onFontChange={setFont("lectures_title")}
+            inputClassName={`${inputClass} font-semibold`}
           />
-        </label>
+        </div>
         <YearTextListEditor items={lectures} onChange={setLectures} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
-        <label className="mb-4 block">
-          <span className={labelClass}>Section title (shown on the public About page)</span>
-          <input
+        <div className="mb-4">
+          <FontPickerInput
+            label="Section title (shown on the public About page)"
             name="awards_title"
             required
             value={awardsTitle}
-            onChange={(e) => setAwardsTitle(e.target.value)}
-            className={`${inputClass} font-semibold`}
+            onChange={setAwardsTitle}
+            font={headingFonts.awards_title ?? null}
+            onFontChange={setFont("awards_title")}
+            inputClassName={`${inputClass} font-semibold`}
           />
-        </label>
+        </div>
         <YearTextListEditor items={awards} onChange={setAwards} />
       </div>
 
       <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
-        <label className="mb-4 block">
-          <span className={labelClass}>Section title (shown on the public About page)</span>
-          <input
+        <div className="mb-4">
+          <FontPickerInput
+            label="Section title (shown on the public About page)"
             name="residencies_title"
             required
             value={residenciesTitle}
-            onChange={(e) => setResidenciesTitle(e.target.value)}
-            className={`${inputClass} font-semibold`}
+            onChange={setResidenciesTitle}
+            font={headingFonts.residencies_title ?? null}
+            onFontChange={setFont("residencies_title")}
+            inputClassName={`${inputClass} font-semibold`}
           />
-        </label>
+        </div>
         <YearTextListEditor items={residencies} onChange={setResidencies} />
       </div>
 

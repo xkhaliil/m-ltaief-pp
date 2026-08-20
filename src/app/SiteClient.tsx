@@ -286,7 +286,9 @@ function RowImage({ src, alt }: { src: string; alt: string }) {
 function Head({ e }: { e: Entry }) {
   return (
     <div>
-      <span className="font-bold">{e.title}</span>
+      <span className="font-bold" style={{ fontFamily: e.title_font ?? undefined }}>
+        {e.title}
+      </span>
       <br />
       {e.lines?.map((l) => (
         <span key={l}>
@@ -458,11 +460,15 @@ function ProjectsPage({
   onSelect,
   indexLabel,
   indexSubtitle,
+  indexLabelFont,
+  indexSubtitleFont,
 }: {
   data: SiteData;
   onSelect: (id: string) => void;
   indexLabel: string;
   indexSubtitle: string;
+  indexLabelFont?: string;
+  indexSubtitleFont?: string;
 }) {
   const [columns, setColumns] = useState<2 | 3>(3);
 
@@ -480,9 +486,11 @@ function ProjectsPage({
     <article>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <span className="font-bold">{indexLabel}</span>
+          <span className="font-bold" style={{ fontFamily: indexLabelFont }}>
+            {indexLabel}
+          </span>
           <br />
-          {indexSubtitle}
+          <span style={{ fontFamily: indexSubtitleFont }}>{indexSubtitle}</span>
         </div>
         <div className="flex shrink-0 gap-2 pt-px text-[11px]" aria-label="Grid columns">
           <button
@@ -784,9 +792,11 @@ function AboutPage({ profile }: { profile: Profile }) {
   return (
     <article>
       <div>
-        <span className="font-bold">{profile.name}</span>
+        <span className="font-bold" style={{ fontFamily: profile.heading_fonts?.name }}>
+          {profile.name}
+        </span>
         <br />
-        {profile.tagline}
+        <span style={{ fontFamily: profile.heading_fonts?.tagline }}>{profile.tagline}</span>
         <br />
         {profile.email ? (
           <>
@@ -819,28 +829,48 @@ function AboutPage({ profile }: { profile: Profile }) {
 
       {profile.works.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.works_title}</h2>
+          <h2
+            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            style={{ fontFamily: profile.heading_fonts?.works_title }}
+          >
+            {profile.works_title}
+          </h2>
           <CvProjectList rows={profile.works} />
         </>
       ) : null}
 
       {profile.lectures.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.lectures_title}</h2>
+          <h2
+            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            style={{ fontFamily: profile.heading_fonts?.lectures_title }}
+          >
+            {profile.lectures_title}
+          </h2>
           <CvCompactList rows={profile.lectures} />
         </>
       ) : null}
 
       {profile.awards.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.awards_title}</h2>
+          <h2
+            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            style={{ fontFamily: profile.heading_fonts?.awards_title }}
+          >
+            {profile.awards_title}
+          </h2>
           <CvCompactList rows={profile.awards} />
         </>
       ) : null}
 
       {profile.residencies.length ? (
         <>
-          <h2 className="mt-[1.45em] text-[11px] leading-[1.45] font-normal">{profile.residencies_title}</h2>
+          <h2
+            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            style={{ fontFamily: profile.heading_fonts?.residencies_title }}
+          >
+            {profile.residencies_title}
+          </h2>
           <CvCompactList rows={profile.residencies} />
         </>
       ) : null}
@@ -977,6 +1007,8 @@ export function SiteClient({
               onSelect={handleSelect}
               indexLabel={resolvedProfile.index_label}
               indexSubtitle={resolvedProfile.index_subtitle}
+              indexLabelFont={resolvedProfile.homepage_heading_fonts?.index_label}
+              indexSubtitleFont={resolvedProfile.homepage_heading_fonts?.index_subtitle}
             />
           ) : sel === "motus" ? (
             <MotusPage data={data} onSelect={handleSelect} />

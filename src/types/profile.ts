@@ -13,6 +13,15 @@ export type CvRow = {
   url?: string;
 };
 
+// Font choice (a FONTS[number].family value, or absent for Default) for
+// each visible heading AboutForm owns. Kept separate from
+// HomepageHeadingFonts below so the two forms' saves can't clobber each
+// other's choices — see the migration's comment.
+export type HeadingFonts = Partial<
+  Record<"name" | "tagline" | "works_title" | "lectures_title" | "awards_title" | "residencies_title", string>
+>;
+export type HomepageHeadingFonts = Partial<Record<"index_label" | "index_subtitle", string>>;
+
 export type Profile = {
   id: number;
   name: string;
@@ -26,6 +35,8 @@ export type Profile = {
   lectures_title: string;
   awards_title: string;
   residencies_title: string;
+  heading_fonts: HeadingFonts;
+  homepage_heading_fonts: HomepageHeadingFonts;
   works: CvRow[];
   lectures: CvRow[];
   awards: CvRow[];
@@ -46,6 +57,8 @@ export const EMPTY_PROFILE: Profile = {
   lectures_title: "selected lecture performances",
   awards_title: "Awards and Grants",
   residencies_title: "Fellowships / Residencies",
+  heading_fonts: {},
+  homepage_heading_fonts: {},
   works: [],
   lectures: [],
   awards: [],

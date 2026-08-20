@@ -10,6 +10,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import FontFamily from "@tiptap/extension-font-family";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { FONTS } from "@/lib/fonts";
 
 type Props = {
   value: string;
@@ -25,19 +26,6 @@ const ALIGNMENTS: { value: Align; label: string }[] = [
   { value: "center", label: "Align center" },
   { value: "right", label: "Align right" },
   { value: "justify", label: "Justify" },
-];
-
-// `family` is null for "Default" (unsets the mark, falling back to the
-// site's normal body font) — the other two are set as a literal CSS
-// font-family value via TipTap's inline style, so whatever @font-face
-// registers that exact name (Libre Baskerville is loaded in layout.tsx)
-// picks it up wherever the stored HTML later renders. TT Norms Pro is a
-// paid font we don't have license files for yet, so for now it just falls
-// through to the sans-serif fallback until real files are supplied.
-const FONTS: { label: string; family: string | null; preview: string }[] = [
-  { label: "Default", family: null, preview: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
-  { label: "Libre Baskerville", family: "'Libre Baskerville', serif", preview: "'Libre Baskerville', serif" },
-  { label: "TT Norms Pro", family: "'TT Norms Pro', sans-serif", preview: "'TT Norms Pro', sans-serif" },
 ];
 
 // Uncontrolled by design: `value` seeds the editor once on mount (each item

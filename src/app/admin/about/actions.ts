@@ -2,7 +2,33 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { CvRow } from "@/types/profile";
+import type { CvRow, HeadingFonts } from "@/types/profile";
+
+const HEADING_FONT_KEYS: (keyof HeadingFonts)[] = [
+  "name",
+  "tagline",
+  "works_title",
+  "lectures_title",
+  "awards_title",
+  "residencies_title",
+];
+
+function parseHeadingFonts(formData: FormData): HeadingFonts {
+  const raw = formData.get("heading_fonts");
+  if (typeof raw !== "string" || !raw.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    const fonts: HeadingFonts = {};
+    for (const key of HEADING_FONT_KEYS) {
+      const value = (parsed as Record<string, unknown>)[key];
+      if (typeof value === "string" && value.trim()) fonts[key] = value.trim();
+    }
+    return fonts;
+  } catch {
+    return {};
+  }
+}
 
 function parseRows(formData: FormData, key: string): CvRow[] {
   const raw = formData.get(key);
@@ -51,6 +77,7 @@ export async function saveProfile(
     lectures_title: String(formData.get("lectures_title") ?? "").trim(),
     awards_title: String(formData.get("awards_title") ?? "").trim(),
     residencies_title: String(formData.get("residencies_title") ?? "").trim(),
+    heading_fonts: parseHeadingFonts(formData),
     works: parseRows(formData, "works"),
     lectures: parseRows(formData, "lectures"),
     awards: parseRows(formData, "awards"),

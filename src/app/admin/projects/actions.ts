@@ -92,6 +92,7 @@ export async function saveProject(
   const section = String(formData.get("section") ?? "main") as ProjectSection;
   const position = Number(formData.get("position") ?? 0);
   const title = String(formData.get("title") ?? "").trim();
+  const titleFont = String(formData.get("title_font") ?? "").trim() || null;
   const navLabelRaw = String(formData.get("nav_label") ?? "").trim();
   // Authored with the same rich-text editor as content-row text items —
   // same trust boundary before it's later rendered with dangerouslySetInnerHTML.
@@ -131,6 +132,7 @@ export async function saveProject(
     section,
     position: Number.isFinite(position) ? position : 0,
     title,
+    title_font: titleFont,
     nav_label: navLabelRaw || null,
     sub_lines: subLines,
     lines,

@@ -2,6 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { HomepageHeadingFonts } from "@/types/profile";
+
+const HOMEPAGE_HEADING_FONT_KEYS: (keyof HomepageHeadingFonts)[] = ["index_label", "index_subtitle"];
+
+function parseHomepageHeadingFonts(formData: FormData): HomepageHeadingFonts {
+  const raw = formData.get("homepage_heading_fonts");
+  if (typeof raw !== "string" || !raw.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    const fonts: HomepageHeadingFonts = {};
+    for (const key of HOMEPAGE_HEADING_FONT_KEYS) {
+      const value = (parsed as Record<string, unknown>)[key];
+      if (typeof value === "string" && value.trim()) fonts[key] = value.trim();
+    }
+    return fonts;
+  } catch {
+    return {};
+  }
+}
 
 export async function saveHomepage(
   _prevState: { error: string; success?: boolean } | null,
@@ -13,6 +33,7 @@ export async function saveHomepage(
     id: 1,
     index_label: String(formData.get("index_label") ?? "").trim(),
     index_subtitle: String(formData.get("index_subtitle") ?? "").trim(),
+    homepage_heading_fonts: parseHomepageHeadingFonts(formData),
   });
 
   if (error) return { error: error.message };

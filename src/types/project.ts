@@ -39,6 +39,8 @@ export type Project = {
   section: ProjectSection;
   position: number;
   title: string;
+  // A FONTS[number].family value (from src/lib/fonts.ts), or null for Default.
+  title_font: string | null;
   nav_label: string | null;
   sub_lines: string[];
   lines: string[];

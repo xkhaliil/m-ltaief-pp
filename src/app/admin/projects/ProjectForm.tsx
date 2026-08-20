@@ -9,6 +9,7 @@ import { LinksEditor } from "./LinksEditor";
 import { GalleryEditor } from "./GalleryEditor";
 import { ContentRowsEditor } from "./ContentRowsEditor";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { FontPickerInput } from "@/components/FontPickerInput";
 
 const SECTIONS: { value: ProjectSection; label: string }[] = [
   { value: "main", label: "Main index" },
@@ -23,6 +24,7 @@ const EMPTY: Project = {
   section: "main",
   position: 0,
   title: "",
+  title_font: null,
   nav_label: null,
   sub_lines: [],
   lines: [],
@@ -49,6 +51,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
   const [section, setSection] = useState<ProjectSection>(initial.section);
   const [position, setPosition] = useState(initial.position);
   const [title, setTitle] = useState(initial.title);
+  const [titleFont, setTitleFont] = useState<string | null>(initial.title_font);
   const [navLabel, setNavLabel] = useState(initial.nav_label ?? "");
   const [subLines, setSubLines] = useState<string[]>(initial.sub_lines);
   const [lines, setLines] = useState<string[]>(initial.lines);
@@ -72,6 +75,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <input type="hidden" name="videos" value="[]" readOnly />
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} readOnly />
       <input type="hidden" name="meta" value={meta} readOnly />
+      <input type="hidden" name="title_font" value={titleFont ?? ""} readOnly />
 
       <div className={cardClass}>
         <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Details</h3>
@@ -119,16 +123,16 @@ export function ProjectForm({ project }: { project: Project | null }) {
             </label>
           </div>
 
-          <label className="block">
-            <span className={labelClass}>Title</span>
-            <input
-              name="title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
-            />
-          </label>
+          <FontPickerInput
+            label="Title"
+            name="title"
+            required
+            value={title}
+            onChange={setTitle}
+            font={titleFont}
+            onFontChange={setTitleFont}
+            inputClassName={inputClass}
+          />
 
           <label className="block">
             <span className={labelClass}>
