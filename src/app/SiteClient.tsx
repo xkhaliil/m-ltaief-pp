@@ -158,20 +158,39 @@ function CVLinkedText({ text }: { text: string }) {
 
 // An explicit link set on the row (via the admin) always wins over the
 // automatic org-name matching below — it's a deliberate per-entry choice.
-function CvRowText({ row }: { row: CvRow }) {
-  if (row.url) {
+function CvLinkedSpan({ text, url }: { text: string; url?: string }) {
+  if (url) {
     return (
       <a
-        href={row.url}
+        href={url}
         target="_blank"
         rel="noreferrer"
         className="hover:text-accent underline underline-offset-2 transition-colors"
       >
-        {row.text}
+        {text}
       </a>
     );
   }
-  return <CVLinkedText text={row.text} />;
+  return <CVLinkedText text={text} />;
+}
+
+// Rows added since the location/city/country fields shipped render as
+// "text, location, city, country" with only the location clickable. Older
+// rows have neither field set — everything lives in `text` as one
+// free-text string (optionally linked as a whole via `url`), same as before.
+function CvRowText({ row }: { row: CvRow }) {
+  if (row.location) {
+    return (
+      <>
+        {row.text}
+        {row.text ? ", " : ""}
+        <CvLinkedSpan text={row.location} url={row.url} />
+        {row.city ? `, ${row.city}` : ""}
+        {row.country ? `, ${row.country}` : ""}
+      </>
+    );
+  }
+  return <CvLinkedSpan text={row.text} url={row.url} />;
 }
 
 function CvCompactList({ rows }: { rows: CvRow[] }) {

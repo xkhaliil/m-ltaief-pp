@@ -7,6 +7,9 @@ type Props = {
   onChange: (items: CvRow[]) => void;
 };
 
+const fieldClass =
+  "rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100";
+
 export function YearTextListEditor({ items, onChange }: Props) {
   const update = (index: number, patch: Partial<CvRow>) => {
     const next = [...items];
@@ -31,7 +34,9 @@ export function YearTextListEditor({ items, onChange }: Props) {
       <div className="flex items-center justify-end">
         <button
           type="button"
-          onClick={() => onChange([{ year: "", text: "", url: "" }, ...items])}
+          onClick={() =>
+            onChange([{ year: "", text: "", location: "", city: "", country: "", url: "" }, ...items])
+          }
           className="rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
         >
           + Add
@@ -49,13 +54,13 @@ export function YearTextListEditor({ items, onChange }: Props) {
                 value={row.year}
                 placeholder="Year"
                 onChange={(e) => update(index, { year: e.target.value })}
-                className="w-[90px] rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
+                className={`w-[90px] ${fieldClass}`}
               />
               <input
                 value={row.text}
-                placeholder="Credit line"
+                placeholder="Title"
                 onChange={(e) => update(index, { text: e.target.value })}
-                className="flex-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
+                className={`flex-1 ${fieldClass}`}
               />
               <div className="flex items-center gap-1 shrink-0 text-slate-400 dark:text-slate-600">
                 <button
@@ -83,11 +88,31 @@ export function YearTextListEditor({ items, onChange }: Props) {
                 </button>
               </div>
             </div>
+            <div className="flex items-start gap-2">
+              <input
+                value={row.location ?? ""}
+                placeholder="Location (venue/org — only this is linked)"
+                onChange={(e) => update(index, { location: e.target.value })}
+                className={`flex-1 ${fieldClass}`}
+              />
+              <input
+                value={row.city ?? ""}
+                placeholder="City"
+                onChange={(e) => update(index, { city: e.target.value })}
+                className={`w-[110px] ${fieldClass}`}
+              />
+              <input
+                value={row.country ?? ""}
+                placeholder="Country"
+                onChange={(e) => update(index, { country: e.target.value })}
+                className={`w-[110px] ${fieldClass}`}
+              />
+            </div>
             <input
               value={row.url ?? ""}
-              placeholder="Link (optional) — https://…"
+              placeholder="Link for location (optional) — https://…"
               onChange={(e) => update(index, { url: e.target.value })}
-              className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
+              className={`w-full ${fieldClass}`}
             />
           </div>
         ))}

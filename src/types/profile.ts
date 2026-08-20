@@ -1,4 +1,17 @@
-export type CvRow = { year: string; text: string; url?: string };
+// `location`/`city`/`country` are optional structured fields for entries
+// added since this shipped — when `location` is set, the row renders as
+// "text, location, city, country" with only `location` linked (via `url`,
+// or auto-matched against CV_EXTERNAL_LINKS in SiteClient.tsx). Older rows
+// have neither: everything lives in `text` as one free-text string, with
+// `url` (if set) linking the whole thing — see CvRowText in SiteClient.tsx.
+export type CvRow = {
+  year: string;
+  text: string;
+  location?: string;
+  city?: string;
+  country?: string;
+  url?: string;
+};
 
 export type Profile = {
   id: number;

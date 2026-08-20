@@ -13,11 +13,20 @@ function parseRows(formData: FormData, key: string): CvRow[] {
     return parsed
       .filter(
         (row): row is CvRow =>
-          row && typeof row.year === "string" && typeof row.text === "string" && row.text.trim(),
+          row &&
+          typeof row.year === "string" &&
+          typeof row.text === "string" &&
+          // A row needs either a title or a location to be worth keeping —
+          // the structured fields let location/city/country carry an entry
+          // on their own, with no title text.
+          (row.text.trim() || (typeof row.location === "string" && row.location.trim())),
       )
       .map((row) => ({
         year: row.year,
         text: row.text,
+        ...(typeof row.location === "string" && row.location.trim() ? { location: row.location.trim() } : {}),
+        ...(typeof row.city === "string" && row.city.trim() ? { city: row.city.trim() } : {}),
+        ...(typeof row.country === "string" && row.country.trim() ? { country: row.country.trim() } : {}),
         ...(typeof row.url === "string" && row.url.trim() ? { url: row.url.trim() } : {}),
       }));
   } catch {
