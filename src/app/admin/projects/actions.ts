@@ -48,6 +48,9 @@ function sanitizeItem(item: unknown): ContentItem | null {
   if (i.type === "video" && typeof i.src === "string" && i.src.trim()) {
     return { type: "video", src: i.src.trim() };
   }
+  if (i.type === "pdf" && typeof i.src === "string" && i.src.trim()) {
+    return { type: "pdf", src: i.src.trim() };
+  }
   return null;
 }
 

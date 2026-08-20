@@ -8,7 +8,7 @@ import { EMPTY_PROFILE } from "@/types/profile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROW_LAYOUTS, flattenItems, normalizeContent } from "@/lib/content-rows";
+import { ROW_LAYOUTS, flattenItems, normalizeContent, pdfLabel } from "@/lib/content-rows";
 import { parseVideoEmbed, type VideoEmbed } from "@/lib/video-embed";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 
@@ -339,9 +339,35 @@ function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string })
   );
 }
 
+// A PDF item is always just a link to somewhere the file is already hosted
+// (Google Drive/Docs share link, etc.) — never a file we store ourselves —
+// so this renders as a plain document card, not an embed.
+function PdfLink({ src }: { src: string }) {
+  const label = pdfLabel(src);
+  return (
+    <a
+      href={src}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-2 rounded border border-border px-3 py-3 text-[13px] transition-colors hover:text-accent"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0" aria-hidden="true">
+        <path
+          d="M3.5 1.5h6L12.5 5v9a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+        />
+        <path d="M9.5 1.5V5h3" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <span className="truncate underline-offset-2 hover:underline">{label}</span>
+    </a>
+  );
+}
+
 // One row of the article, laid out per its admin-chosen split (full width,
-// half+half, 1/3+2/3, etc.) — text, image, and video items can sit in the
-// same row, side by side.
+// half+half, 1/3+2/3, etc.) — text, image, video, and PDF items can sit in
+// the same row, side by side.
 function ContentRowView({ row, title }: { row: ContentRow; title: string }) {
   const fractions = ROW_LAYOUTS[row.layout]?.fractions ?? [1];
   return (
@@ -355,11 +381,13 @@ function ContentRowView({ row, title }: { row: ContentRow; title: string }) {
             <div className="cargo-rich-text" dangerouslySetInnerHTML={{ __html: sanitizeRichText(item.text) }} />
           ) : item.type === "image" ? (
             <RowImage src={item.src} alt={title} />
-          ) : (
+          ) : item.type === "video" ? (
             (() => {
               const embed = parseVideoEmbed(item.src);
               return embed ? <VideoEmbedFrame embed={embed} title={title} /> : null;
             })()
+          ) : (
+            <PdfLink src={item.src} />
           )}
         </div>
       ))}

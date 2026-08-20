@@ -78,6 +78,14 @@ export function flattenItems(rows: ContentRow[]): ContentItem[] {
   return rows.flatMap((row) => row.items);
 }
 
+// Google Drive/Docs share links don't carry a real filename in the URL
+// (just an opaque file id, ending in something like "/view") — only show a
+// filename for links that plausibly end in an actual .pdf path.
+export function pdfLabel(src: string): string {
+  const basename = src.split("?")[0].split("/").pop() ?? "";
+  return /\.pdf$/i.test(basename) ? decodeURIComponent(basename) : "View PDF";
+}
+
 let clientIdCounter = 0;
 
 // Client-only id for new rows/items created interactively in the admin —

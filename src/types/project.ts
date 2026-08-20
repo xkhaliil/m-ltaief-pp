@@ -17,7 +17,11 @@ export type LegacyContentBlock =
 export type ContentItem =
   | { type: "text"; text: string }
   | { type: "image"; src: string; width?: number; height?: number }
-  | { type: "video"; src: string };
+  | { type: "video"; src: string }
+  // A link to a PDF hosted elsewhere (Google Drive/Docs share link, etc.) —
+  // deliberately not a file upload, so documents never end up as blobs in
+  // Supabase storage/the database, same as Profile.bio_pdf_url.
+  | { type: "pdf"; src: string };
 
 // Fixed set of proportions a row's items can be split into — see
 // ROW_LAYOUTS in src/lib/content-rows.ts for the fraction each maps to.

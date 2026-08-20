@@ -22,7 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ContentItem, ContentRow, RowLayout } from "@/types/project";
-import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId } from "@/lib/content-rows";
+import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId, pdfLabel } from "@/lib/content-rows";
 import { parseVideoEmbed } from "@/lib/video-embed";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -421,6 +421,13 @@ function EmptySlot({ images, onAdd }: { images: string[]; onAdd: (item: ContentI
       >
         + Video / Audio
       </button>
+      <button
+        type="button"
+        onClick={() => onAdd({ type: "pdf", src: "" })}
+        className="w-full rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      >
+        + PDF
+      </button>
     </div>
   );
 }
@@ -502,7 +509,7 @@ function ItemCard({
             ))}
           </select>
         </div>
-      ) : (
+      ) : item.type === "video" ? (
         <div className="space-y-1.5">
           {(() => {
             const embed = item.src ? parseVideoEmbed(item.src) : null;
@@ -530,7 +537,34 @@ function ItemCard({
             className={cardInputClass}
           />
         </div>
+      ) : (
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 rounded bg-slate-200 dark:bg-slate-700 px-2.5 py-3 text-[11px] text-slate-600 dark:text-slate-300">
+            <PdfGlyph />
+            <span className="truncate">{item.src ? pdfLabel(item.src) : "Paste a link below"}</span>
+          </div>
+          <input
+            value={item.src}
+            onChange={(e) => onUpdate({ type: "pdf", src: e.target.value })}
+            placeholder="Google Drive/Docs share link (or any direct PDF link)"
+            className={cardInputClass}
+          />
+        </div>
       )}
     </div>
+  );
+}
+
+function PdfGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0" aria-hidden="true">
+      <path
+        d="M3.5 1.5h6L12.5 5v9a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <path d="M9.5 1.5V5h3" fill="none" stroke="currentColor" strokeWidth="1" />
+    </svg>
   );
 }
