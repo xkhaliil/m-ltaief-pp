@@ -86,6 +86,13 @@ export function pdfLabel(src: string): string {
   return /\.pdf$/i.test(basename) ? decodeURIComponent(basename) : "View PDF";
 }
 
+// A pasted "file:///Users/…" path (most commonly Finder/Explorer "copy
+// path") only exists on whoever pasted it's own computer — browsers refuse
+// to open it for anyone else, so it can never work for a site visitor.
+export function isWebLink(src: string): boolean {
+  return /^https?:\/\//i.test(src.trim());
+}
+
 let clientIdCounter = 0;
 
 // Client-only id for new rows/items created interactively in the admin —

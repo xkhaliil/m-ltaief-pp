@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ContentItem, ContentRow, ProjectLink, ProjectSection, RowLayout } from "@/types/project";
-import { ROW_LAYOUTS } from "@/lib/content-rows";
+import { ROW_LAYOUTS, isWebLink } from "@/lib/content-rows";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 
 const SECTIONS: ProjectSection[] = [
@@ -48,7 +48,7 @@ function sanitizeItem(item: unknown): ContentItem | null {
   if (i.type === "video" && typeof i.src === "string" && i.src.trim()) {
     return { type: "video", src: i.src.trim() };
   }
-  if (i.type === "pdf" && typeof i.src === "string" && i.src.trim()) {
+  if (i.type === "pdf" && typeof i.src === "string" && isWebLink(i.src)) {
     return { type: "pdf", src: i.src.trim() };
   }
   return null;

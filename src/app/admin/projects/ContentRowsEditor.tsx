@@ -22,7 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ContentItem, ContentRow, RowLayout } from "@/types/project";
-import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId, pdfLabel } from "@/lib/content-rows";
+import { ROW_LAYOUTS, ROW_LAYOUT_ORDER, newClientId, pdfLabel, isWebLink } from "@/lib/content-rows";
 import { parseVideoEmbed } from "@/lib/video-embed";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -549,6 +549,13 @@ function ItemCard({
             placeholder="Google Drive/Docs share link (or any direct PDF link)"
             className={cardInputClass}
           />
+          {item.src && !isWebLink(item.src) ? (
+            <p className="rounded bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+              {item.src.startsWith("file://")
+                ? "That's a path to a file on your own computer — it will never open for visitors. Upload the PDF to Google Drive (or similar), set it to “Anyone with the link”, and paste that share link instead."
+                : "This needs to be a real web link (starting with https://) — a Google Drive/Docs share link, or any direct link to a hosted PDF."}
+            </p>
+          ) : null}
         </div>
       )}
     </div>

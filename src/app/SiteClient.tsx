@@ -8,7 +8,7 @@ import { EMPTY_PROFILE } from "@/types/profile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROW_LAYOUTS, flattenItems, normalizeContent, pdfLabel } from "@/lib/content-rows";
+import { ROW_LAYOUTS, flattenItems, normalizeContent, pdfLabel, isWebLink } from "@/lib/content-rows";
 import { parseVideoEmbed, type VideoEmbed } from "@/lib/video-embed";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 
@@ -343,6 +343,10 @@ function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string })
 // (Google Drive/Docs share link, etc.) — never a file we store ourselves —
 // so this renders as a plain document card, not an embed.
 function PdfLink({ src }: { src: string }) {
+  // Guards against already-saved bad data (e.g. a "file:///Users/…" path
+  // pasted before this validation existed) — a link that can never open for
+  // a visitor is worse than no link at all.
+  if (!isWebLink(src)) return null;
   const label = pdfLabel(src);
   return (
     <a
