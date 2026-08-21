@@ -7,6 +7,10 @@ export type ProjectSection =
 
 export type ProjectLink = { label: string; href: string };
 
+// A FONTS[number].family value (from src/lib/fonts.ts), or null/undefined
+// for Default.
+export type TextFont = string | null;
+
 // Legacy flat shape — still what's actually stored for any project that
 // hasn't been re-saved since content rows shipped. Never written going
 // forward; only read by normalizeContent() for backward compatibility.
@@ -39,12 +43,15 @@ export type Project = {
   section: ProjectSection;
   position: number;
   title: string;
-  // A FONTS[number].family value (from src/lib/fonts.ts), or null for Default.
-  title_font: string | null;
+  title_font: TextFont;
   nav_label: string | null;
+  nav_label_font: TextFont;
   sub_lines: string[];
+  sub_lines_font: TextFont;
   lines: string[];
+  lines_font: TextFont;
   links: ProjectLink[];
+  links_font: TextFont;
   // Raw as read from the DB — may be the legacy flat shape or the new row
   // shape. Always normalizeContent() this before rendering or editing.
   content: ContentRow[] | LegacyContentBlock[];

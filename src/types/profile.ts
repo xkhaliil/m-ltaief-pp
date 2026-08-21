@@ -4,6 +4,8 @@
 // or auto-matched against CV_EXTERNAL_LINKS in SiteClient.tsx). Older rows
 // have neither: everything lives in `text` as one free-text string, with
 // `url` (if set) linking the whole thing — see CvRowText in SiteClient.tsx.
+// `font` applies to the whole rendered row (title + location + city +
+// country together), not to any one piece.
 export type CvRow = {
   year: string;
   text: string;
@@ -11,6 +13,7 @@ export type CvRow = {
   city?: string;
   country?: string;
   url?: string;
+  font?: string;
 };
 
 // Font choice (a FONTS[number].family value, or absent for Default) for
@@ -18,7 +21,10 @@ export type CvRow = {
 // HomepageHeadingFonts below so the two forms' saves can't clobber each
 // other's choices — see the migration's comment.
 export type HeadingFonts = Partial<
-  Record<"name" | "tagline" | "works_title" | "lectures_title" | "awards_title" | "residencies_title", string>
+  Record<
+    "name" | "tagline" | "email" | "works_title" | "lectures_title" | "awards_title" | "residencies_title",
+    string
+  >
 >;
 export type HomepageHeadingFonts = Partial<Record<"index_label" | "index_subtitle", string>>;
 

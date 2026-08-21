@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type SyntheticEvent,
+} from "react";
 import Image from "next/image";
 import type { ContentRow, Project } from "@/types/project";
 import type { CvRow, Profile } from "@/types/profile";
@@ -8,7 +14,14 @@ import { EMPTY_PROFILE } from "@/types/profile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROW_LAYOUTS, flattenItems, normalizeContent, pdfLabel, pdfEmbedSrc, isWebLink } from "@/lib/content-rows";
+import {
+  ROW_LAYOUTS,
+  flattenItems,
+  normalizeContent,
+  pdfLabel,
+  pdfEmbedSrc,
+  isWebLink,
+} from "@/lib/content-rows";
 import { parseVideoEmbed, type VideoEmbed } from "@/lib/video-embed";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 
@@ -18,7 +31,14 @@ import { sanitizeRichText } from "@/lib/sanitize-html";
 type Entry = Omit<Project, "content" | "videos"> & { content: ContentRow[] };
 
 type MenuItem =
-  | { type: "item"; id: string; label: string; subLines?: string[] }
+  | {
+      type: "item";
+      id: string;
+      label: string;
+      labelFont?: string | null;
+      subLines?: string[];
+      subLinesFont?: string | null;
+    }
   | { type: "category"; label: string; id?: string };
 
 type SiteData = {
@@ -50,27 +70,57 @@ function buildSiteData(projects: Project[]): SiteData {
     type: "item",
     id: p.id,
     label: p.nav_label ?? p.title,
+    labelFont: p.nav_label ? p.nav_label_font : p.title_font,
     subLines: p.sub_lines.length ? p.sub_lines : undefined,
+    subLinesFont: p.sub_lines_font,
   });
 
   const navTree: MenuItem[] = [
     ...main.map(toItem),
-    ...(motus.length ? [{ type: "category", id: "motus", label: "Motus" } as MenuItem] : []),
+    ...(motus.length
+      ? [{ type: "category", id: "motus", label: "Motus" } as MenuItem]
+      : []),
     ...motus.map(toItem),
     ...(lecture.length
-      ? [{ type: "category", id: "lecture-performance", label: "Lecture Performance / Panel" } as MenuItem]
+      ? [
+          {
+            type: "category",
+            id: "lecture-performance",
+            label: "Lecture Performance / Panel",
+          } as MenuItem,
+        ]
       : []),
     ...lecture.map(toItem),
     ...(writing.length
-      ? [{ type: "category", id: "writing-publishing", label: "Writing / Publishing Practice" } as MenuItem]
+      ? [
+          {
+            type: "category",
+            id: "writing-publishing",
+            label: "Writing / Publishing Practice",
+          } as MenuItem,
+        ]
       : []),
     ...writing.map(toItem),
-    ...(archive.length ? [{ type: "category", id: "archive", label: "Archive أرشيف" } as MenuItem] : []),
+    ...(archive.length
+      ? [
+          {
+            type: "category",
+            id: "archive",
+            label: "Archive أرشيف",
+          } as MenuItem,
+        ]
+      : []),
     ...archive.map(toItem),
     { type: "item", id: "about", label: "About | CV" },
   ];
 
-  const projectIds = [...main, ...motus, ...lecture, ...writing, ...archive].map((p) => p.id);
+  const projectIds = [
+    ...main,
+    ...motus,
+    ...lecture,
+    ...writing,
+    ...archive,
+  ].map((p) => p.id);
 
   return {
     entries,
@@ -81,19 +131,34 @@ function buildSiteData(projects: Project[]): SiteData {
     archiveIds: archive.map((p) => p.id),
     activeMenuGroups: {
       motus: ["motus", ...motus.map((p) => p.id)],
-      "lecture-performance": ["lecture-performance", ...lecture.map((p) => p.id)],
+      "lecture-performance": [
+        "lecture-performance",
+        ...lecture.map((p) => p.id),
+      ],
       "writing-publishing": ["writing-publishing", ...writing.map((p) => p.id)],
     },
   };
 }
 
 const CV_EXTERNAL_LINKS = [
-  ["Mophradat Consortium Commissions", "https://mophradat.org/en/program/consortium-commissions/2023-2025/"],
-  ["Mophradat consortium-commissions", "https://mophradat.org/en/program/consortium-commissions/2023-2025/"],
+  [
+    "Mophradat Consortium Commissions",
+    "https://mophradat.org/en/program/consortium-commissions/2023-2025/",
+  ],
+  [
+    "Mophradat consortium-commissions",
+    "https://mophradat.org/en/program/consortium-commissions/2023-2025/",
+  ],
   ["Live Works Summit", "https://www.centralefies.it/liveworks24/"],
   ["Live Works Fellow", "https://www.centralefies.it/liveworks24/"],
-  ["Barbican Centre", "https://www.barbican.org.uk/whats-on/2025/event/feel-the-sound"],
-  ["TheMuseumsLab", "https://www.museumfuernaturkunde.berlin/en/about/the-museum/themuseumslab"],
+  [
+    "Barbican Centre",
+    "https://www.barbican.org.uk/whats-on/2025/event/feel-the-sound",
+  ],
+  [
+    "TheMuseumsLab",
+    "https://www.museumfuernaturkunde.berlin/en/about/the-museum/themuseumslab",
+  ],
   ["Centrale Fies", "https://www.centralefies.it/"],
   ["Kaaitheater", "https://kaaitheater.be/"],
   ["Tanzfabrik", "https://www.tanzfabrik-berlin.de/"],
@@ -130,8 +195,13 @@ const CV_EXTERNAL_LINKS = [
 ] as const;
 
 function CVLinkedText({ text }: { text: string }) {
-  const ordered = [...CV_EXTERNAL_LINKS].sort((a, b) => b[0].length - a[0].length);
-  const expression = new RegExp(`(${ordered.map(([label]) => label.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")).join("|")})`, "g");
+  const ordered = [...CV_EXTERNAL_LINKS].sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+  const expression = new RegExp(
+    `(${ordered.map(([label]) => label.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")).join("|")})`,
+    "g",
+  );
   const parts = text.split(expression);
 
   return (
@@ -199,7 +269,9 @@ function CvCompactList({ rows }: { rows: CvRow[] }) {
       {rows.map((row, i) => (
         <li key={`${row.year}-${i}`} className="flex whitespace-nowrap">
           <span className="cargo-cv-year">{row.year}</span>
-          <span><CvRowText row={row} /></span>
+          <span style={{ fontFamily: row.font }}>
+            <CvRowText row={row} />
+          </span>
         </li>
       ))}
     </ul>
@@ -212,7 +284,9 @@ function CvProjectList({ rows }: { rows: CvRow[] }) {
       {rows.map((row, i) => (
         <li key={`${row.year}-${i}`} className="whitespace-nowrap">
           <span className="cargo-cv-year">{row.year}</span>
-          <span><CvRowText row={row} /></span>
+          <span style={{ fontFamily: row.font }}>
+            <CvRowText row={row} />
+          </span>
         </li>
       ))}
     </ul>
@@ -226,8 +300,13 @@ function CvProjectList({ rows }: { rows: CvRow[] }) {
 // images placed yet.
 function thumbnailFor(entry: Entry): string | undefined {
   if (entry.thumbnail_url) return entry.thumbnail_url;
-  const firstImage = flattenItems(entry.content).find((i) => i.type === "image");
-  return (firstImage?.type === "image" ? firstImage.src : undefined) ?? entry.gallery[0];
+  const firstImage = flattenItems(entry.content).find(
+    (i) => i.type === "image",
+  );
+  return (
+    (firstImage?.type === "image" ? firstImage.src : undefined) ??
+    entry.gallery[0]
+  );
 }
 
 function firstTextFor(entry: Entry): string {
@@ -266,7 +345,10 @@ function RowImage({ src, alt }: { src: string; alt: string }) {
     // img) in the same update that fades it in, before anything is visible
     // at the wrong shape. Fills whatever width its row/column gives it —
     // 100% of a full-width row is the same 1000px the old fixed cap gave.
-    <span className="relative block h-full w-full" style={{ aspectRatio: ratio ?? 3 / 2 }}>
+    <span
+      className="relative block h-full w-full"
+      style={{ aspectRatio: ratio ?? 3 / 2 }}
+    >
       {!loaded ? <Skeleton className="absolute inset-0" /> : null}
       <Image
         ref={imgRef}
@@ -286,18 +368,21 @@ function RowImage({ src, alt }: { src: string; alt: string }) {
 function Head({ e }: { e: Entry }) {
   return (
     <div>
-      <span className="font-bold" style={{ fontFamily: e.title_font ?? undefined }}>
+      <span
+        className="font-bold"
+        style={{ fontFamily: e.title_font ?? undefined }}
+      >
         {e.title}
       </span>
       <br />
       {e.lines?.map((l) => (
-        <span key={l}>
+        <span key={l} style={{ fontFamily: e.lines_font ?? undefined }}>
           {l}
           <br />
         </span>
       ))}
       {e.links?.length ? (
-        <span>
+        <span style={{ fontFamily: e.links_font ?? undefined }}>
           {e.links.map((l, i) => (
             <span key={l.href}>
               <a
@@ -322,7 +407,13 @@ function Head({ e }: { e: Entry }) {
 // or square video render small and centered, with dead grey space around it.
 // Fetching the real width/height via oEmbed and sizing the frame to match
 // fixes that; 16:9 stays the placeholder guess until it resolves.
-function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string }) {
+function VideoEmbedFrame({
+  embed,
+  title,
+}: {
+  embed: VideoEmbed;
+  title: string;
+}) {
   const [loaded, setLoaded] = useState(false);
   const [ratio, setRatio] = useState<number | null>(null);
   const isAudio = embed.kind === "audio";
@@ -351,7 +442,9 @@ function VideoEmbedFrame({ embed, title }: { embed: VideoEmbed; title: string })
       {!loaded ? <Skeleton className="absolute inset-0" /> : null}
       <iframe
         src={embed.src}
-        allow={isAudio ? "autoplay" : "autoplay; fullscreen; picture-in-picture"}
+        allow={
+          isAudio ? "autoplay" : "autoplay; fullscreen; picture-in-picture"
+        }
         title={`${title} — ${embed.label}`}
         onLoad={() => setLoaded(true)}
         className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
@@ -389,16 +482,29 @@ function PdfEmbed({ src }: { src: string }) {
         rel="noreferrer"
         className="cargo-pdf-open-link mt-1.5 flex items-center gap-1.5 text-[12px] transition-colors hover:text-accent"
       >
-        <svg width="13" height="13" viewBox="0 0 16 16" className="shrink-0" aria-hidden="true">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 16 16"
+          className="shrink-0"
+          aria-hidden="true"
+        >
           <path
             d="M3.5 1.5h6L12.5 5v9a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5Z"
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
           />
-          <path d="M9.5 1.5V5h3" fill="none" stroke="currentColor" strokeWidth="1" />
+          <path
+            d="M9.5 1.5V5h3"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          />
         </svg>
-        <span className="truncate underline-offset-2 hover:underline">{label} — open in new tab ↗</span>
+        <span className="truncate underline-offset-2 hover:underline">
+          {label} — open in new tab ↗
+        </span>
       </a>
     </div>
   );
@@ -417,13 +523,18 @@ function ContentRowView({ row, title }: { row: ContentRow; title: string }) {
       {row.items.map((item, i) => (
         <div key={i} className="cargo-content-cell">
           {item.type === "text" ? (
-            <div className="cargo-rich-text" dangerouslySetInnerHTML={{ __html: sanitizeRichText(item.text) }} />
+            <div
+              className="cargo-rich-text"
+              dangerouslySetInnerHTML={{ __html: sanitizeRichText(item.text) }}
+            />
           ) : item.type === "image" ? (
             <RowImage src={item.src} alt={title} />
           ) : item.type === "video" ? (
             (() => {
               const embed = parseVideoEmbed(item.src);
-              return embed ? <VideoEmbedFrame embed={embed} title={title} /> : null;
+              return embed ? (
+                <VideoEmbedFrame embed={embed} title={title} />
+              ) : null;
             })()
           ) : (
             <PdfEmbed src={item.src} />
@@ -492,13 +603,20 @@ function ProjectsPage({
           <br />
           <span style={{ fontFamily: indexSubtitleFont }}>{indexSubtitle}</span>
         </div>
-        <div className="flex shrink-0 gap-2 pt-px text-[11px]" aria-label="Grid columns">
+        <div
+          className="flex shrink-0 gap-2 pt-px text-[11px]"
+          aria-label="Grid columns"
+        >
           <button
             type="button"
             onClick={() => changeColumns(2)}
             aria-current={columns === 2}
             aria-label="Show 2 columns"
-            className={columns === 2 ? "text-accent" : "hover:text-accent transition-colors"}
+            className={
+              columns === 2
+                ? "text-accent"
+                : "hover:text-accent transition-colors"
+            }
           >
             2
           </button>
@@ -507,7 +625,11 @@ function ProjectsPage({
             onClick={() => changeColumns(3)}
             aria-current={columns === 3}
             aria-label="Show 3 columns"
-            className={columns === 3 ? "text-accent" : "hover:text-accent transition-colors"}
+            className={
+              columns === 3
+                ? "text-accent"
+                : "hover:text-accent transition-colors"
+            }
           >
             3
           </button>
@@ -534,7 +656,10 @@ function ProjectsPage({
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px"
                 />
               ) : (
-                <span className="cargo-project-placeholder" aria-hidden="true" />
+                <span
+                  className="cargo-project-placeholder"
+                  aria-hidden="true"
+                />
               )}
               <span className="cargo-project-preview-title">{entry.title}</span>
               <small>{entry.lines?.[0] ?? ""}</small>
@@ -559,7 +684,8 @@ function ProjectPager({
   if (index < 0) return null;
 
   const previous = index > 0 ? data.projectIds[index - 1] : null;
-  const next = index < data.projectIds.length - 1 ? data.projectIds[index + 1] : null;
+  const next =
+    index < data.projectIds.length - 1 ? data.projectIds[index + 1] : null;
 
   return (
     <nav className="cargo-project-pager" aria-label="Previous and next project">
@@ -603,10 +729,19 @@ function MotusPage({
 
       <div className="mt-[1.45em] space-y-[1.45em]">
         <p>
-          The 2011 &gt; 2068 Animale Politico Project is an enlarged and visionary front of observation developed by Motus. Moving between utopias and dystopias, libertarian and catastrophic visions, it gathers performative actions, workshops, residencies, public conferences and urban interventions around encounters with extraordinary women, men and novels.
+          The 2011 &gt; 2068 Animale Politico Project is an enlarged and
+          visionary front of observation developed by Motus. Moving between
+          utopias and dystopias, libertarian and catastrophic visions, it
+          gathers performative actions, workshops, residencies, public
+          conferences and urban interventions around encounters with
+          extraordinary women, men and novels.
         </p>
         <p>
-          Mohamed-Ali Ltaief collaborated with Motus across the project&apos;s research and performances, including Caliban Cannibal and Call Me X. These works move through temporary shelters, crossed languages, revolution, displacement, and the unstable architectures of an elsewhere.
+          Mohamed-Ali Ltaief collaborated with Motus across the project&apos;s
+          research and performances, including Caliban Cannibal and Call Me X.
+          These works move through temporary shelters, crossed languages,
+          revolution, displacement, and the unstable architectures of an
+          elsewhere.
         </p>
       </div>
 
@@ -620,7 +755,10 @@ function MotusPage({
               <span className="font-bold">Caliban Cannibal</span>
             </button>
             {thumbnailFor(caliban) ? (
-              <RowImage src={thumbnailFor(caliban)!} alt="Caliban Cannibal, Motus" />
+              <RowImage
+                src={thumbnailFor(caliban)!}
+                alt="Caliban Cannibal, Motus"
+              />
             ) : null}
           </>
         ) : null}
@@ -641,7 +779,8 @@ function MotusPage({
       </div>
 
       <p className="mt-[0.5em]">
-        Production Motus 2011 &gt; 2068 AnimalePolitico Project. Within the Ateliers l&apos;Euroméditerranée Marseille Provence 2013.
+        Production Motus 2011 &gt; 2068 AnimalePolitico Project. Within the
+        Ateliers l&apos;Euroméditerranée Marseille Provence 2013.
       </p>
     </article>
   );
@@ -664,10 +803,15 @@ function LecturePerformancePage({
 
       <div className="mt-[1.45em] space-y-[1.45em]">
         <p>
-          These lecture performances, workshops, and panels gather the research threads running through the wider practice: early phonographic archives, anticolonial sound histories, translation, listening, and the transformation of archival material into situated performance.
+          These lecture performances, workshops, and panels gather the research
+          threads running through the wider practice: early phonographic
+          archives, anticolonial sound histories, translation, listening, and
+          the transformation of archival material into situated performance.
         </p>
         <p>
-          The works move between Tunis, Berlin, Venice, and institutional as well as self-organized spaces, bringing sound testimony, fragmented biography, reading, and dialogue into public relation.
+          The works move between Tunis, Berlin, Venice, and institutional as
+          well as self-organized spaces, bringing sound testimony, fragmented
+          biography, reading, and dialogue into public relation.
         </p>
       </div>
 
@@ -713,7 +857,11 @@ function WritingPublishingPage({
 
       <div className="mt-[1.45em] space-y-[1.45em]">
         <p>
-          This section gathers publications, writing, exhibition catalogues, archival narratives, and the radio work that extends the practice through listening. These projects move between performance documentation, research publishing, translated testimony, and sound transmission.
+          This section gathers publications, writing, exhibition catalogues,
+          archival narratives, and the radio work that extends the practice
+          through listening. These projects move between performance
+          documentation, research publishing, translated testimony, and sound
+          transmission.
         </p>
       </div>
 
@@ -759,7 +907,10 @@ function ArchivePage({
 
       <div className="mt-[1.45em] space-y-[1.45em]">
         <p>
-          Archive gathers projects that work through collective memory, public surfaces, cinema, documents, and the afterlives of political events. The works assemble visual traces from Tunisia and the wider Mediterranean into temporary forms of circulation.
+          Archive gathers projects that work through collective memory, public
+          surfaces, cinema, documents, and the afterlives of political events.
+          The works assemble visual traces from Tunisia and the wider
+          Mediterranean into temporary forms of circulation.
         </p>
       </div>
 
@@ -792,15 +943,20 @@ function AboutPage({ profile }: { profile: Profile }) {
   return (
     <article>
       <div>
-        <span className="font-bold" style={{ fontFamily: profile.heading_fonts?.name }}>
+        <span
+          className="font-bold"
+          style={{ fontFamily: profile.heading_fonts?.name }}
+        >
           {profile.name}
         </span>
         <br />
-        <span style={{ fontFamily: profile.heading_fonts?.tagline }}>{profile.tagline}</span>
+        <span style={{ fontFamily: profile.heading_fonts?.tagline }}>
+          {profile.tagline}
+        </span>
         <br />
         {profile.email ? (
           <>
-            email: {profile.email}
+            email: <span style={{ fontFamily: profile.heading_fonts?.email }}>{profile.email}</span>
             <br />
           </>
         ) : null}
@@ -963,12 +1119,19 @@ export function SiteClient({
                   key={`item-${node.id}`}
                   onClick={() => handleSelect(node.id)}
                   className={`block w-full text-left transition-colors duration-150 ${
-                    node.id === "i-hear" || node.id === "path-sun" ? "whitespace-nowrap" : ""
+                    node.id === "i-hear" || node.id === "path-sun"
+                      ? "whitespace-nowrap"
+                      : ""
                   } ${sel === node.id ? "text-accent" : "hover:text-accent"}`}
                 >
-                  {node.label}
+                  <span style={{ fontFamily: node.labelFont ?? undefined }}>{node.label}</span>
                   {node.subLines?.map((line) => (
-                    <span key={line} dir="rtl" className="block whitespace-nowrap text-left">
+                    <span
+                      key={line}
+                      dir="rtl"
+                      className="block whitespace-nowrap text-left"
+                      style={{ fontFamily: node.subLinesFont ?? undefined }}
+                    >
                       {line}
                     </span>
                   ))}
@@ -1007,8 +1170,12 @@ export function SiteClient({
               onSelect={handleSelect}
               indexLabel={resolvedProfile.index_label}
               indexSubtitle={resolvedProfile.index_subtitle}
-              indexLabelFont={resolvedProfile.homepage_heading_fonts?.index_label}
-              indexSubtitleFont={resolvedProfile.homepage_heading_fonts?.index_subtitle}
+              indexLabelFont={
+                resolvedProfile.homepage_heading_fonts?.index_label
+              }
+              indexSubtitleFont={
+                resolvedProfile.homepage_heading_fonts?.index_subtitle
+              }
             />
           ) : sel === "motus" ? (
             <MotusPage data={data} onSelect={handleSelect} />

@@ -69,16 +69,16 @@ export function AboutForm({ profile }: { profile: Profile }) {
             inputClassName={inputClass}
           />
 
-          <label className="block">
-            <span className={labelClass}>Email</span>
-            <input
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={inputClass}
-            />
-          </label>
+          <FontPickerInput
+            label="Email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            font={headingFonts.email ?? null}
+            onFontChange={setFont("email")}
+            inputClassName={inputClass}
+          />
 
           <label className="block">
             <span className={labelClass}>Biography PDF link</span>

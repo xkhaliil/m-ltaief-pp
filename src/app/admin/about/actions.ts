@@ -7,6 +7,7 @@ import type { CvRow, HeadingFonts } from "@/types/profile";
 const HEADING_FONT_KEYS: (keyof HeadingFonts)[] = [
   "name",
   "tagline",
+  "email",
   "works_title",
   "lectures_title",
   "awards_title",
@@ -54,6 +55,7 @@ function parseRows(formData: FormData, key: string): CvRow[] {
         ...(typeof row.city === "string" && row.city.trim() ? { city: row.city.trim() } : {}),
         ...(typeof row.country === "string" && row.country.trim() ? { country: row.country.trim() } : {}),
         ...(typeof row.url === "string" && row.url.trim() ? { url: row.url.trim() } : {}),
+        ...(typeof row.font === "string" && row.font.trim() ? { font: row.font.trim() } : {}),
       }));
   } catch {
     return [];

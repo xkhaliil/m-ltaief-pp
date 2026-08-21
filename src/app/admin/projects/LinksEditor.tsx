@@ -1,13 +1,17 @@
 "use client";
 
 import type { ProjectLink } from "@/types/project";
+import { FontMenuButton, currentFont } from "@/components/FontMenuButton";
 
 type Props = {
   items: ProjectLink[];
   onChange: (items: ProjectLink[]) => void;
+  // One font applies to every link label together, not one per link.
+  font?: string | null;
+  onFontChange?: (font: string | null) => void;
 };
 
-export function LinksEditor({ items, onChange }: Props) {
+export function LinksEditor({ items, onChange, font, onFontChange }: Props) {
   const update = (index: number, patch: Partial<ProjectLink>) => {
     const next = [...items];
     next[index] = { ...next[index], ...patch };
@@ -20,15 +24,18 @@ export function LinksEditor({ items, onChange }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Links</span>
-        <button
-          type="button"
-          onClick={() => onChange([...items, { label: "", href: "" }])}
-          className="rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-        >
-          + Add
-        </button>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {onFontChange ? <FontMenuButton font={font ?? null} onFontChange={onFontChange} /> : null}
+          <button
+            type="button"
+            onClick={() => onChange([...items, { label: "", href: "" }])}
+            className="rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            + Add
+          </button>
+        </div>
       </div>
 
       <div className="mt-3 space-y-2">
@@ -38,6 +45,7 @@ export function LinksEditor({ items, onChange }: Props) {
               value={item.label}
               placeholder="Label"
               onChange={(e) => update(index, { label: e.target.value })}
+              style={{ fontFamily: currentFont(font ?? null).preview }}
               className="w-1/3 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-slate-900 dark:focus:border-slate-100 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-100"
             />
             <input

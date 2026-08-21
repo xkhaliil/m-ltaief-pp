@@ -1,6 +1,7 @@
 "use client";
 
 import type { CvRow } from "@/types/profile";
+import { FontMenuButton, currentFont } from "@/components/FontMenuButton";
 
 type Props = {
   items: CvRow[];
@@ -60,9 +61,11 @@ export function YearTextListEditor({ items, onChange }: Props) {
                 value={row.text}
                 placeholder="Title"
                 onChange={(e) => update(index, { text: e.target.value })}
+                style={{ fontFamily: currentFont(row.font ?? null).preview }}
                 className={`flex-1 ${fieldClass}`}
               />
               <div className="flex items-center gap-1 shrink-0 text-slate-400 dark:text-slate-600">
+                <FontMenuButton font={row.font ?? null} onFontChange={(font) => update(index, { font: font ?? undefined })} />
                 <button
                   type="button"
                   onClick={() => move(index, -1)}
@@ -93,18 +96,21 @@ export function YearTextListEditor({ items, onChange }: Props) {
                 value={row.location ?? ""}
                 placeholder="Location (venue/org — only this is linked)"
                 onChange={(e) => update(index, { location: e.target.value })}
+                style={{ fontFamily: currentFont(row.font ?? null).preview }}
                 className={`flex-1 ${fieldClass}`}
               />
               <input
                 value={row.city ?? ""}
                 placeholder="City"
                 onChange={(e) => update(index, { city: e.target.value })}
+                style={{ fontFamily: currentFont(row.font ?? null).preview }}
                 className={`w-[110px] ${fieldClass}`}
               />
               <input
                 value={row.country ?? ""}
                 placeholder="Country"
                 onChange={(e) => update(index, { country: e.target.value })}
+                style={{ fontFamily: currentFont(row.font ?? null).preview }}
                 className={`w-[110px] ${fieldClass}`}
               />
             </div>

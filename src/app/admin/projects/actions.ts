@@ -94,6 +94,10 @@ export async function saveProject(
   const title = String(formData.get("title") ?? "").trim();
   const titleFont = String(formData.get("title_font") ?? "").trim() || null;
   const navLabelRaw = String(formData.get("nav_label") ?? "").trim();
+  const navLabelFont = String(formData.get("nav_label_font") ?? "").trim() || null;
+  const subLinesFont = String(formData.get("sub_lines_font") ?? "").trim() || null;
+  const linesFont = String(formData.get("lines_font") ?? "").trim() || null;
+  const linksFont = String(formData.get("links_font") ?? "").trim() || null;
   // Authored with the same rich-text editor as content-row text items —
   // same trust boundary before it's later rendered with dangerouslySetInnerHTML.
   const meta = sanitizeRichText(String(formData.get("meta") ?? "")).trim();
@@ -134,9 +138,13 @@ export async function saveProject(
     title,
     title_font: titleFont,
     nav_label: navLabelRaw || null,
+    nav_label_font: navLabelFont,
     sub_lines: subLines,
+    sub_lines_font: subLinesFont,
     lines,
+    lines_font: linesFont,
     links,
+    links_font: linksFont,
     content,
     videos,
     meta,

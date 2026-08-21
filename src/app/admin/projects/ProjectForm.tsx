@@ -26,9 +26,13 @@ const EMPTY: Project = {
   title: "",
   title_font: null,
   nav_label: null,
+  nav_label_font: null,
   sub_lines: [],
+  sub_lines_font: null,
   lines: [],
+  lines_font: null,
   links: [],
+  links_font: null,
   content: [],
   videos: [],
   meta: "",
@@ -53,9 +57,13 @@ export function ProjectForm({ project }: { project: Project | null }) {
   const [title, setTitle] = useState(initial.title);
   const [titleFont, setTitleFont] = useState<string | null>(initial.title_font);
   const [navLabel, setNavLabel] = useState(initial.nav_label ?? "");
+  const [navLabelFont, setNavLabelFont] = useState<string | null>(initial.nav_label_font);
   const [subLines, setSubLines] = useState<string[]>(initial.sub_lines);
+  const [subLinesFont, setSubLinesFont] = useState<string | null>(initial.sub_lines_font);
   const [lines, setLines] = useState<string[]>(initial.lines);
+  const [linesFont, setLinesFont] = useState<string | null>(initial.lines_font);
   const [links, setLinks] = useState<ProjectLink[]>(initial.links);
+  const [linksFont, setLinksFont] = useState<string | null>(initial.links_font);
   // Video links now live inline as items within content rows — this folds
   // any legacy `videos` column entries in as their own rows the first time
   // the project is opened here, and the column is left empty on save.
@@ -76,6 +84,10 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} readOnly />
       <input type="hidden" name="meta" value={meta} readOnly />
       <input type="hidden" name="title_font" value={titleFont ?? ""} readOnly />
+      <input type="hidden" name="nav_label_font" value={navLabelFont ?? ""} readOnly />
+      <input type="hidden" name="sub_lines_font" value={subLinesFont ?? ""} readOnly />
+      <input type="hidden" name="lines_font" value={linesFont ?? ""} readOnly />
+      <input type="hidden" name="links_font" value={linksFont ?? ""} readOnly />
 
       <div className={cardClass}>
         <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Details</h3>
@@ -134,18 +146,15 @@ export function ProjectForm({ project }: { project: Project | null }) {
             inputClassName={inputClass}
           />
 
-          <label className="block">
-            <span className={labelClass}>
-              Menu label (optional — only if it should read differently in the side menu than
-              the title)
-            </span>
-            <input
-              name="nav_label"
-              value={navLabel}
-              onChange={(e) => setNavLabel(e.target.value)}
-              className={inputClass}
-            />
-          </label>
+          <FontPickerInput
+            label="Menu label (optional — only if it should read differently in the side menu than the title)"
+            name="nav_label"
+            value={navLabel}
+            onChange={setNavLabel}
+            font={navLabelFont}
+            onFontChange={setNavLabelFont}
+            inputClassName={inputClass}
+          />
         </div>
       </div>
 
@@ -155,6 +164,8 @@ export function ProjectForm({ project }: { project: Project | null }) {
           hint="Venue, date, subtitle — shown under the title, one line each."
           items={lines}
           onChange={setLines}
+          font={linesFont}
+          onFontChange={setLinesFont}
         />
       </div>
 
@@ -164,11 +175,13 @@ export function ProjectForm({ project }: { project: Project | null }) {
           hint="Extra line(s) shown under this item in the side menu (e.g. an Arabic title)."
           items={subLines}
           onChange={setSubLines}
+          font={subLinesFont}
+          onFontChange={setSubLinesFont}
         />
       </div>
 
       <div className={cardClass}>
-        <LinksEditor items={links} onChange={setLinks} />
+        <LinksEditor items={links} onChange={setLinks} font={linksFont} onFontChange={setLinksFont} />
       </div>
 
       <div className={cardClass}>
