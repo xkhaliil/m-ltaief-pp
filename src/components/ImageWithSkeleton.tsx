@@ -46,7 +46,9 @@ export function ImageWithSkeleton({
 
   return (
     <span className={cn("relative block", wrapperClassName)}>
-      {!loaded ? <Skeleton className="absolute inset-0 rounded-[inherit]" /> : null}
+      {!loaded ? (
+        <Skeleton className="absolute inset-0 rounded-[inherit]" />
+      ) : null}
       <Image
         ref={imgRef}
         src={src}

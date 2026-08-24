@@ -962,7 +962,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.works.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.works_title }}
           >
             {profile.works_title}
@@ -974,7 +974,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.lectures.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.lectures_title }}
           >
             {profile.lectures_title}
@@ -986,7 +986,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.awards.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.awards_title }}
           >
             {profile.awards_title}
@@ -998,7 +998,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.residencies.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[11px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.residencies_title }}
           >
             {profile.residencies_title}
@@ -1057,7 +1057,7 @@ export function SiteClient({
         {/* Static Cargo index — permanently positioned on the right */}
         <aside
           aria-label="Project index"
-          className="w-full sm:w-[300px] md:w-[320px] shrink-0 sm:order-2 sm:sticky sm:top-8 sm:self-start sm:max-h-[calc(100vh-4rem)] sm:overflow-y-auto text-[12px] leading-[1.5]"
+          className="w-full sm:w-[300px] md:w-[320px] shrink-0 sm:order-2 sm:sticky sm:top-8 sm:self-start sm:max-h-[calc(100vh-4rem)] sm:overflow-y-auto text-[14px] leading-[1.5]"
         >
           <nav className="leading-[1.5]">
             <button
@@ -1100,7 +1100,9 @@ export function SiteClient({
                       : ""
                   } ${sel === node.id ? "text-accent" : "hover:text-accent"}`}
                 >
-                  <span style={{ fontFamily: node.labelFont ?? undefined }}>{node.label}</span>
+                  <span style={{ fontFamily: node.labelFont ?? undefined }}>
+                    {node.label}
+                  </span>
                   {node.subLines?.map((line) => (
                     <span
                       key={line}
