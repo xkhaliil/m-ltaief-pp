@@ -23,10 +23,8 @@ type Props = {
 
 // Fixed-size image slot (grid thumbnails, admin previews): shows a pulsing
 // skeleton sized to the wrapper until the image actually loads, then
-// crossfades to it. Uses next/image so the (often several-thousand-pixel,
-// several-MB) source gets resized/re-encoded to whatever this slot actually
-// needs, instead of the browser decoding the original just to shrink it —
-// that decode cost was what made scrolling past a grid of these jank.
+// crossfades to it. Unoptimized requests avoid routing remote storage images
+// through a deployment provider's paid image optimizer.
 export function ImageWithSkeleton({
   src,
   alt,
@@ -54,6 +52,7 @@ export function ImageWithSkeleton({
         src={src}
         alt={alt}
         fill
+        unoptimized
         sizes={sizes}
         loading={loading}
         className={cn(

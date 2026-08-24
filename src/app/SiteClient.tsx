@@ -336,11 +336,7 @@ function RowImage({ src, alt }: { src: string; alt: string }) {
   };
 
   return (
-    // next/image resizes/re-encodes these on the fly — content-block photos
-    // are uploaded at full camera resolution (several thousand px, several
-    // MB), and decoding that just to show it at article width was the
-    // actual cause of scroll jank on a project page, not the smooth scroll
-    // itself. Real dimensions aren't known ahead of time, so the box starts
+    // Real dimensions aren't known ahead of time, so the box starts
     // at a guessed 3:2 ratio and snaps to the real one (read off the loaded
     // img) in the same update that fades it in, before anything is visible
     // at the wrong shape. Fills whatever width its row/column gives it —
@@ -355,6 +351,7 @@ function RowImage({ src, alt }: { src: string; alt: string }) {
         src={src}
         alt={alt}
         fill
+        unoptimized
         sizes="(max-width: 1000px) 100vw, 1000px"
         className={`object-contain transition-opacity duration-500 ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
         onLoad={handleLoad}
