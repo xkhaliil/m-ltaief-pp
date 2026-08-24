@@ -12,8 +12,8 @@
   --color-ink: #000000;
   --color-muted: #000000;
   --color-border: #e8e8e8;
-  --color-accent: #ff50ff;
-  --color-accent-bright: #ff50ff;
+  --color-accent: #e40014;
+  --color-accent-bright: #e40014;
 }
 
 /* Secondary tones used by the hand-written .cargo-* rules below (not
