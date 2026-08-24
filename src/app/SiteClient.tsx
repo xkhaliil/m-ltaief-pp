@@ -569,17 +569,9 @@ function EntryPage({ e }: { e: Entry }) {
 function ProjectsPage({
   data,
   onSelect,
-  indexLabel,
-  indexSubtitle,
-  indexLabelFont,
-  indexSubtitleFont,
 }: {
   data: SiteData;
   onSelect: (id: string) => void;
-  indexLabel: string;
-  indexSubtitle: string;
-  indexLabelFont?: string;
-  indexSubtitleFont?: string;
 }) {
   const [columns, setColumns] = useState<2 | 3>(3);
 
@@ -595,14 +587,7 @@ function ProjectsPage({
 
   return (
     <article>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <span className="font-bold" style={{ fontFamily: indexLabelFont }}>
-            {indexLabel}
-          </span>
-          <br />
-          <span style={{ fontFamily: indexSubtitleFont }}>{indexSubtitle}</span>
-        </div>
+      <div className="flex items-start justify-end gap-4">
         <div
           className="flex shrink-0 gap-2 pt-px text-[11px]"
           aria-label="Grid columns"
@@ -954,12 +939,6 @@ function AboutPage({ profile }: { profile: Profile }) {
           {profile.tagline}
         </span>
         <br />
-        {profile.email ? (
-          <>
-            email: <span style={{ fontFamily: profile.heading_fonts?.email }}>{profile.email}</span>
-            <br />
-          </>
-        ) : null}
         {profile.bio_pdf_url ? (
           <a
             href={profile.bio_pdf_url}
@@ -1165,18 +1144,7 @@ export function SiteClient({
         {/* Cargo project page */}
         <div className="flex-1 min-w-0 max-w-[1000px] pb-16 sm:order-1">
           {sel === "projects" ? (
-            <ProjectsPage
-              data={data}
-              onSelect={handleSelect}
-              indexLabel={resolvedProfile.index_label}
-              indexSubtitle={resolvedProfile.index_subtitle}
-              indexLabelFont={
-                resolvedProfile.homepage_heading_fonts?.index_label
-              }
-              indexSubtitleFont={
-                resolvedProfile.homepage_heading_fonts?.index_subtitle
-              }
-            />
+            <ProjectsPage data={data} onSelect={handleSelect} />
           ) : sel === "motus" ? (
             <MotusPage data={data} onSelect={handleSelect} />
           ) : sel === "lecture-performance" ? (
