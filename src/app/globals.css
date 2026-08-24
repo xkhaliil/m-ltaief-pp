@@ -7,7 +7,7 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --color-paper: #ffffff;
   --color-ink: #000000;
   --color-muted: #000000;
@@ -56,7 +56,7 @@ html {
 }
 
 body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.45;
   letter-spacing: 0;
@@ -122,7 +122,11 @@ body {
   line-height: 1.6;
   padding: 0.3em 0;
   display: inline-block;
-  background-image: linear-gradient(to left, var(--color-accent) 50%, var(--loader-base) 50%);
+  background-image: linear-gradient(
+    to left,
+    var(--color-accent) 50%,
+    var(--loader-base) 50%
+  );
   background-size: 200% 100%;
   background-position-x: 0%;
   -webkit-background-clip: text;
@@ -185,7 +189,7 @@ body {
    exhibition description, essays, and notes on the Solar Cry project page. */
 .cargo-reading {
   max-width: 1000px;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.45;
@@ -260,7 +264,7 @@ body {
 .cargo-rich-editor-content {
   min-height: 96px;
   padding: 8px 10px;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13px;
   line-height: 1.45;
   outline: none;
@@ -347,7 +351,7 @@ body {
 
 .cargo-project-preview {
   min-width: 0;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 11px;
   line-height: 1.3;
   /* Skip layout/paint for tiles that are off-screen — cuts the work the
@@ -409,7 +413,7 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
   font-weight: 400;
   line-height: 1.45;
@@ -449,7 +453,7 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 18px;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13px;
   line-height: 1.25;
 }
