@@ -62,7 +62,12 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url.trim() }).run();
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: url.trim() })
+      .run();
   };
 
   return (
@@ -101,14 +106,18 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
 
         <ToolbarButton
           active={editor.isActive("heading", { level: 2 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           label="Heading"
         >
           H2
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive("heading", { level: 3 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           label="Subheading"
         >
           H3
@@ -123,7 +132,11 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
 
         <Divider />
 
-        <ToolbarButton active={editor.isActive("link")} onClick={setLink} label="Link">
+        <ToolbarButton
+          active={editor.isActive("link")}
+          onClick={setLink}
+          label="Link"
+        >
           Link
         </ToolbarButton>
 
@@ -162,7 +175,9 @@ export function RichTextEditor({ value, onChange, placeholder }: Props) {
 }
 
 function Divider() {
-  return <div className="mx-1 h-4 w-px shrink-0 bg-slate-200 dark:bg-slate-700" />;
+  return (
+    <div className="mx-1 h-4 w-px shrink-0 bg-slate-200 dark:bg-slate-700" />
+  );
 }
 
 function ToolbarButton({
@@ -204,21 +219,35 @@ function AlignMenu({ editor }: { editor: Editor }) {
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+      if (rootRef.current && !rootRef.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  const current = ALIGNMENTS.find((a) => editor.isActive({ textAlign: a.value }))?.value ?? "left";
+  const current =
+    ALIGNMENTS.find((a) => editor.isActive({ textAlign: a.value }))?.value ??
+    "left";
 
   return (
     <div ref={rootRef} className="relative">
-      <ToolbarButton active={open} onClick={() => setOpen((v) => !v)} label="Text alignment">
+      <ToolbarButton
+        active={open}
+        onClick={() => setOpen((v) => !v)}
+        label="Text alignment"
+      >
         <span className="flex items-center gap-0.5">
           <AlignIcon value={current} />
           <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true">
-            <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M2 3.5 5 6.5 8 3.5"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
       </ToolbarButton>
@@ -252,22 +281,36 @@ function FontMenu({ editor }: { editor: Editor }) {
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+      if (rootRef.current && !rootRef.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  const currentFamily = editor.getAttributes("textStyle").fontFamily as string | undefined;
+  const currentFamily = editor.getAttributes("textStyle").fontFamily as
+    | string
+    | undefined;
   const current = FONTS.find((f) => f.family === currentFamily) ?? FONTS[0];
 
   return (
     <div ref={rootRef} className="relative">
-      <ToolbarButton active={open} onClick={() => setOpen((v) => !v)} label="Typography">
+      <ToolbarButton
+        active={open}
+        onClick={() => setOpen((v) => !v)}
+        label="Typography"
+      >
         <span className="flex items-center gap-1 px-0.5">
           <span style={{ fontFamily: current.preview }}>Aa</span>
           <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true">
-            <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M2 3.5 5 6.5 8 3.5"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
       </ToolbarButton>
@@ -278,7 +321,8 @@ function FontMenu({ editor }: { editor: Editor }) {
               key={f.label}
               type="button"
               onClick={() => {
-                if (f.family) editor.chain().focus().setFontFamily(f.family).run();
+                if (f.family)
+                  editor.chain().focus().setFontFamily(f.family).run();
                 else editor.chain().focus().unsetFontFamily().run();
                 setOpen(false);
               }}
@@ -299,12 +343,30 @@ function FontMenu({ editor }: { editor: Editor }) {
 }
 
 function AlignIcon({ value }: { value: Align }) {
-  const widths = [9, value === "justify" ? 9 : 7, 9, value === "justify" ? 9 : 7];
-  const xs = { left: [1, 1, 1, 1], center: [1, 1.5, 1, 1.5], right: [1, 3, 1, 3], justify: [1, 1, 1, 1] }[value];
+  const widths = [
+    9,
+    value === "justify" ? 9 : 7,
+    9,
+    value === "justify" ? 9 : 7,
+  ];
+  const xs = {
+    left: [1, 1, 1, 1],
+    center: [1, 1.5, 1, 1.5],
+    right: [1, 3, 1, 3],
+    justify: [1, 1, 1, 1],
+  }[value];
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
       {widths.map((w, i) => (
-        <rect key={i} x={xs[i]} y={1 + i * 3} width={w} height="1.4" rx="0.7" fill="currentColor" />
+        <rect
+          key={i}
+          x={xs[i]}
+          y={1 + i * 3}
+          width={w}
+          height="1.4"
+          rx="0.7"
+          fill="currentColor"
+        />
       ))}
     </svg>
   );

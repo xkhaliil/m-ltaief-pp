@@ -44,8 +44,14 @@ export function parseVideoEmbed(raw: string): VideoEmbed | null {
       }
     }
 
-    if (host === "youtube.com" || host === "m.youtube.com" || host === "youtu.be") {
-      const id = url.searchParams.get("v") ?? url.pathname.split("/").filter(Boolean).pop();
+    if (
+      host === "youtube.com" ||
+      host === "m.youtube.com" ||
+      host === "youtu.be"
+    ) {
+      const id =
+        url.searchParams.get("v") ??
+        url.pathname.split("/").filter(Boolean).pop();
       if (id) {
         return {
           src: `https://www.youtube-nocookie.com/embed/${id}`,
