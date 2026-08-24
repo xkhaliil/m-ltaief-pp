@@ -962,7 +962,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.works.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[12px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.works_title }}
           >
             {profile.works_title}
@@ -974,7 +974,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.lectures.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[12px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.lectures_title }}
           >
             {profile.lectures_title}
@@ -986,7 +986,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.awards.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[12px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.awards_title }}
           >
             {profile.awards_title}
@@ -998,7 +998,7 @@ function AboutPage({ profile }: { profile: Profile }) {
       {profile.residencies.length ? (
         <>
           <h2
-            className="mt-[1.45em] text-[14px] leading-[1.45] font-normal"
+            className="mt-[1.45em] text-[12px] leading-[1.45] font-normal"
             style={{ fontFamily: profile.heading_fonts?.residencies_title }}
           >
             {profile.residencies_title}
@@ -1057,13 +1057,13 @@ export function SiteClient({
         {/* Static Cargo index — permanently positioned on the right */}
         <aside
           aria-label="Project index"
-          className="w-full sm:w-[300px] md:w-[320px] shrink-0 sm:order-2 sm:sticky sm:top-8 sm:self-start sm:max-h-[calc(100vh-4rem)] sm:overflow-y-auto text-[14px] leading-[1.5]"
+          className="w-full sm:w-[300px] md:w-[320px] shrink-0 sm:order-2 sm:sticky sm:top-8 sm:self-start sm:max-h-[calc(100vh-4rem)] sm:overflow-y-auto text-[12px] leading-[1.5]"
         >
           <nav className="leading-[1.5]">
             <button
               onClick={() => handleSelect("projects")}
               className={`block w-full text-left transition-colors duration-150 ${
-                sel === "projects" ? "text-accent" : "hover:text-accent"
+                sel === "projects" ? "text-red-600" : "hover:text-red-600"
               }`}
             >
               /ˈɪndɛks/
@@ -1077,8 +1077,8 @@ export function SiteClient({
                     onClick={() => handleSelect(node.id!)}
                     className={`block w-full text-left transition-colors duration-150 ${
                       node.id && data.activeMenuGroups[node.id]?.includes(sel)
-                        ? "text-accent"
-                        : "hover:text-accent"
+                        ? "text-red-600"
+                        : "hover:text-red-600"
                     }`}
                   >
                     {node.label}
@@ -1098,7 +1098,7 @@ export function SiteClient({
                     node.id === "i-hear" || node.id === "path-sun"
                       ? "whitespace-nowrap"
                       : ""
-                  } ${sel === node.id ? "text-accent" : "hover:text-accent"}`}
+                  } ${sel === node.id ? "text-red-600" : "hover:text-red-600"}`}
                 >
                   <span style={{ fontFamily: node.labelFont ?? undefined }}>
                     {node.label}
