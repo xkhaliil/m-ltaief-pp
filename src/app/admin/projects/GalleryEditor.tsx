@@ -46,14 +46,19 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
     if (!files?.length) return;
     setError(null);
 
-    try {
-      const supabase = createClient();
-      const uploaded: string[] = [];
+    const supabase = createClient();
+    const uploaded: string[] = [];
+    const failures: string[] = [];
 
-      const { data: usageBytes } = await supabase.rpc("storage_usage_bytes");
-      let skipCloud = typeof usageBytes === "number" && usageBytes >= SAFE_STORAGE_LIMIT_BYTES;
+    const { data: usageBytes } = await supabase.rpc("storage_usage_bytes");
+    let skipCloud = typeof usageBytes === "number" && usageBytes >= SAFE_STORAGE_LIMIT_BYTES;
 
-      for (const original of Array.from(files)) {
+    // Each file is isolated in its own try/catch — one bad file (an
+    // unsupported format, a dropped connection, ...) used to throw and
+    // abort the whole batch, silently discarding every other file that had
+    // already uploaded fine, with no per-file explanation of what failed.
+    for (const original of Array.from(files)) {
+      try {
         setUploading("compressing");
         const file = await compressImage(original);
         const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "-");
@@ -94,14 +99,14 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
         // batch locally too, instead of retrying a doomed upload each time.
         skipCloud = true;
         await saveLocally();
+      } catch (err) {
+        failures.push(`${original.name}: ${err instanceof Error ? err.message : "upload failed"}`);
       }
-
-      onChange([...items, ...uploaded]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setUploading(false);
     }
+
+    if (uploaded.length) onChange([...items, ...uploaded]);
+    setUploading(false);
+    if (failures.length) setError(failures.join("\n"));
   };
 
   return (
@@ -129,7 +134,9 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
       </p>
 
       {error ? (
-        <p className="mt-2 rounded-md bg-red-50 dark:bg-red-950/40 px-3 py-2 text-sm text-red-700 dark:text-red-300">{error}</p>
+        <p className="mt-2 whitespace-pre-line rounded-md bg-red-50 dark:bg-red-950/40 px-3 py-2 text-sm text-red-700 dark:text-red-300">
+          {error}
+        </p>
       ) : null}
 
       <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3">

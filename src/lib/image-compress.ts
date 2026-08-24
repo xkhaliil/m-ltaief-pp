@@ -10,7 +10,24 @@ const QUALITY = 0.82;
 const OUTPUT_TYPE = "image/webp";
 const SKIP_BELOW_BYTES = 150_000;
 
+// HEIC/HEIF is the default photo format on iPhone (Settings > Camera >
+// Formats > "High Efficiency") — browsers can't decode it, so
+// createImageBitmap below fails and (before this check existed) the catch
+// swallowed that failure and silently uploaded the original .heic file
+// unchanged. The upload itself would "succeed", but the image could never
+// actually render anywhere on the site: a permanently stuck placeholder
+// with no visible error, which is what this is guarding against.
+function isHeic(file: File): boolean {
+  return /^image\/hei[cf]$/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+}
+
 export async function compressImage(file: File): Promise<File> {
+  if (isHeic(file)) {
+    throw new Error(
+      `${file.name} is a HEIC/HEIF photo — browsers can't display that format on the web. On iPhone: Settings → Camera → Formats → "Most Compatible" (or use "Export as JPEG" when sharing this photo out), then upload that instead.`,
+    );
+  }
+
   if (file.size < SKIP_BELOW_BYTES || file.type === "image/svg+xml" || file.type === "image/gif") {
     return file;
   }
