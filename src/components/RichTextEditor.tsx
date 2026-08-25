@@ -18,7 +18,7 @@ type Props = {
   placeholder?: string;
 };
 
-const COLORS = ["#000000", "#e40014", "#777777", "#b91c1c", "#1d4ed8"];
+const COLORS = ["#000000", "#ea3323", "#777777", "#b91c1c", "#1d4ed8"];
 
 type Align = "left" | "center" | "right" | "justify";
 const ALIGNMENTS: { value: Align; label: string }[] = [

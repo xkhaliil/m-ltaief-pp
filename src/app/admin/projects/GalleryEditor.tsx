@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image-compress";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import { uploadImageLocally } from "./local-upload";
+import { safeStorageSegment } from "@/lib/storage-path";
 
 type Props = {
   projectId: string;
@@ -61,7 +62,7 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
       try {
         setUploading("compressing");
         const file = await compressImage(original);
-        const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "-");
+        const safeName = safeStorageSegment(file.name, "image");
 
         const saveLocally = async () => {
           const formData = new FormData();
@@ -80,7 +81,7 @@ export function GalleryEditor({ projectId, items, onChange }: Props) {
         }
 
         setUploading("uploading");
-        const path = `${projectId || "uploads"}/${Date.now()}-${safeName}`;
+        const path = `${safeStorageSegment(projectId, "uploads")}/${Date.now()}-${safeName}`;
         const { error: uploadError } = await supabase.storage
           .from("gallery")
           .upload(path, file, { upsert: false });

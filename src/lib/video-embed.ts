@@ -21,7 +21,7 @@ export function parseVideoEmbed(raw: string): VideoEmbed | null {
 
   if (/^\d+$/.test(value)) {
     return {
-      src: `https://player.vimeo.com/video/${value}?color=e40014&title=0&byline=0&portrait=0`,
+      src: `https://player.vimeo.com/video/${value}?color=ea3323&title=0&byline=0&portrait=0`,
       label: `Vimeo ${value}`,
       kind: "video",
       oembedUrl: `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${value}`)}`,
@@ -36,7 +36,7 @@ export function parseVideoEmbed(raw: string): VideoEmbed | null {
       const id = url.pathname.split("/").filter(Boolean).pop();
       if (id) {
         return {
-          src: `https://player.vimeo.com/video/${id}?color=e40014&title=0&byline=0&portrait=0`,
+          src: `https://player.vimeo.com/video/${id}?color=ea3323&title=0&byline=0&portrait=0`,
           label: `Vimeo ${id}`,
           kind: "video",
           oembedUrl: `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`,

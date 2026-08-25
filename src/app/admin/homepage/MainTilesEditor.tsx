@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image-compress";
+import { safeStorageSegment } from "@/lib/storage-path";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import type { Project } from "@/types/project";
 import { flattenItems, normalizeContent } from "@/lib/content-rows";
@@ -35,7 +36,7 @@ const SAFE_STORAGE_LIMIT_BYTES = 950 * 1024 * 1024;
 async function uploadThumbnail(projectId: string, file: File): Promise<string> {
   const supabase = createClient();
   const compressed = await compressImage(file);
-  const safeName = compressed.name.replace(/[^a-zA-Z0-9.\-_]/g, "-");
+  const safeName = safeStorageSegment(compressed.name, "image");
 
   const { data: usageBytes } = await supabase.rpc("storage_usage_bytes");
   const skipCloud = typeof usageBytes === "number" && usageBytes >= SAFE_STORAGE_LIMIT_BYTES;
@@ -50,7 +51,7 @@ async function uploadThumbnail(projectId: string, file: File): Promise<string> {
 
   if (skipCloud) return saveLocally();
 
-  const path = `${projectId}/thumb-${Date.now()}-${safeName}`;
+  const path = `${safeStorageSegment(projectId, "uploads")}/thumb-${Date.now()}-${safeName}`;
   const { error: uploadError } = await supabase.storage
     .from("gallery")
     .upload(path, compressed, { upsert: false });

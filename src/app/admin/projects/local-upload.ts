@@ -10,6 +10,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { safeStorageSegment } from "@/lib/storage-path";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "images", "uploads");
 
@@ -21,7 +22,7 @@ export async function uploadImageLocally(
     return { error: "No file provided." };
   }
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "-");
+  const safeName = safeStorageSegment(file.name, "image");
   const filename = `${Date.now()}-${safeName}`;
 
   try {
