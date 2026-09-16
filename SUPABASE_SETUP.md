@@ -41,6 +41,11 @@ Open **SQL Editor** in the Supabase dashboard, and run these files **in this ord
 5. [`supabase/migrations/0003_storage_usage.sql`](supabase/migrations/0003_storage_usage.sql) —
    adds a function the admin portal uses to check how much storage is left, so it can switch
    to saving images locally before an upload fails, not after.
+6. Then run every remaining file in `supabase/migrations/` in numeric order (`0004_…` through
+   `0011_…`). Each one is additive and idempotent. The last,
+   [`0011_project_published.sql`](supabase/migrations/0011_project_published.sql), adds the
+   `published` flag behind the **Online / Offline** switch in `/admin` — until it has been run,
+   that switch has nothing to save to and every project stays online.
 
 > Note: the original site's images (`public/images/works/...`) are not included in this
 > project folder. The seed keeps those paths as-is; if you have the original image files,

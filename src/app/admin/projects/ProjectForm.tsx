@@ -22,6 +22,7 @@ const SECTIONS: { value: ProjectSection; label: string }[] = [
 const EMPTY: Project = {
   id: "",
   section: "main",
+  published: true,
   position: 0,
   title: "",
   title_font: null,
@@ -53,6 +54,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
 
   const [id, setId] = useState(initial.id);
   const [section, setSection] = useState<ProjectSection>(initial.section);
+  const [published, setPublished] = useState(initial.published !== false);
   const [position, setPosition] = useState(initial.position);
   const [title, setTitle] = useState(initial.title);
   const [titleFont, setTitleFont] = useState<string | null>(initial.title_font);
@@ -76,6 +78,7 @@ export function ProjectForm({ project }: { project: Project | null }) {
   return (
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="originalId" value={initial.id} />
+      <input type="hidden" name="published" value={published ? "true" : "false"} readOnly />
       <input type="hidden" name="sub_lines" value={JSON.stringify(subLines)} readOnly />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} readOnly />
       <input type="hidden" name="links" value={JSON.stringify(links)} readOnly />
@@ -90,7 +93,31 @@ export function ProjectForm({ project }: { project: Project | null }) {
       <input type="hidden" name="links_font" value={linksFont ?? ""} readOnly />
 
       <div className={cardClass}>
-        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Details</h3>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Details</h3>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={published}
+            onClick={() => setPublished((v) => !v)}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+              published
+                ? "border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                : "border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`h-1.5 w-1.5 rounded-full ${published ? "bg-emerald-500" : "bg-slate-400 dark:bg-slate-600"}`}
+            />
+            {published ? "Online" : "Offline"}
+          </button>
+        </div>
+        <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+          {published
+            ? "This project is visible on the site. Switch it to Offline to hide it — nothing is deleted, and you can put it back online any time."
+            : "This project is hidden from the site. Everything is kept — switch it back to Online whenever you want it to show again."}
+        </p>
         <div className="space-y-4">
           <label className="block">
             <span className={labelClass}>

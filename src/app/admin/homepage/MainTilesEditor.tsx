@@ -4,13 +4,20 @@ import { useActionState, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image-compress";
 import { safeStorageSegment } from "@/lib/storage-path";
+import { isPublished } from "@/lib/project-visibility";
 import { ImageWithSkeleton } from "@/components/ImageWithSkeleton";
 import type { Project } from "@/types/project";
 import { flattenItems, normalizeContent } from "@/lib/content-rows";
 import { uploadImageLocally } from "../projects/local-upload";
 import { saveMainTiles } from "./actions";
 
-type Tile = { id: string; title: string; thumbnail_url: string | null; fallback: string | null };
+type Tile = {
+  id: string;
+  title: string;
+  thumbnail_url: string | null;
+  fallback: string | null;
+  published: boolean;
+};
 
 function fallbackThumbnail(project: Project): string | null {
   const firstImage = flattenItems(normalizeContent(project.content, project.videos)).find(
@@ -71,6 +78,7 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
       title: p.title,
       thumbnail_url: p.thumbnail_url,
       fallback: fallbackThumbnail(p),
+      published: isPublished(p),
     })),
   );
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -99,6 +107,14 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
     setTiles(next);
   };
 
+  // Offline tiles stay in this list (that's the point — they have to be
+  // findable to be switched back on), they just stop rendering on the site.
+  const togglePublished = (index: number) => {
+    const next = [...tiles];
+    next[index] = { ...next[index], published: !next[index].published };
+    setTiles(next);
+  };
+
   const replaceThumbnail = async (index: number, file: File) => {
     const tile = tiles[index];
     setUploadingId(tile.id);
@@ -119,7 +135,13 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
   };
 
   const payload = JSON.stringify(
-    tiles.map((t, i) => ({ id: t.id, position: i, title: t.title, thumbnail_url: t.thumbnail_url })),
+    tiles.map((t, i) => ({
+      id: t.id,
+      position: i,
+      title: t.title,
+      thumbnail_url: t.thumbnail_url,
+      published: t.published,
+    })),
   );
 
   return (
@@ -137,8 +159,10 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
           </a>
         </div>
         <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-          Drag to reorder. Hover a thumbnail to replace it. For links, video, or the full text
-          layout of a project, use &quot;Edit&quot;.
+          Drag to reorder. Hover a thumbnail to replace it. Use Online / Offline to hide a
+          project from the site without deleting it — it stays in this list so you can put it
+          back any time. For links, video, or the full text layout of a project, use
+          &quot;Edit&quot;.
         </p>
 
         <div className="space-y-2">
@@ -155,15 +179,21 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
                   setDragIndex(null);
                 }}
                 onDragEnd={() => setDragIndex(null)}
-                className={`flex items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 cursor-grab active:cursor-grabbing ${
-                  dragIndex === index ? "opacity-50" : ""
-                }`}
+                className={`flex items-center gap-3 rounded-lg border bg-white dark:bg-slate-900 p-2.5 cursor-grab active:cursor-grabbing ${
+                  tile.published
+                    ? "border-slate-200 dark:border-slate-800"
+                    : "border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40"
+                } ${dragIndex === index ? "opacity-50" : ""}`}
               >
                 <span className="shrink-0 text-slate-300 dark:text-slate-700 select-none" aria-hidden="true">
                   ⠿
                 </span>
 
-                <label className="group relative block shrink-0 cursor-pointer">
+                <label
+                  className={`group relative block shrink-0 cursor-pointer ${
+                    tile.published ? "" : "opacity-50"
+                  }`}
+                >
                   {src ? (
                     <ImageWithSkeleton
                       src={src}
@@ -217,6 +247,31 @@ export function MainTilesEditor({ projects }: { projects: Project[] }) {
                     ↓
                   </button>
                 </div>
+
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={tile.published}
+                  onClick={() => togglePublished(index)}
+                  title={
+                    tile.published
+                      ? "Visible on the site — click to take it offline"
+                      : "Hidden from the site — click to put it back online"
+                  }
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${
+                    tile.published
+                      ? "border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                      : "border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      tile.published ? "bg-emerald-500" : "bg-slate-400 dark:bg-slate-600"
+                    }`}
+                  />
+                  {tile.published ? "Online" : "Offline"}
+                </button>
 
                 <a
                   href={`/admin/projects/${tile.id}`}

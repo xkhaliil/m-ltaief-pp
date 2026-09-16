@@ -91,6 +91,9 @@ export async function saveProject(
   const id = String(formData.get("id") ?? "").trim();
   const section = String(formData.get("section") ?? "main") as ProjectSection;
   const position = Number(formData.get("position") ?? 0);
+  // Absent (an old form, or the checkbox unchecked) means offline; the
+  // form always submits "true" for an online project.
+  const published = String(formData.get("published") ?? "") === "true";
   const title = String(formData.get("title") ?? "").trim();
   const titleFont = String(formData.get("title_font") ?? "").trim() || null;
   const navLabelRaw = String(formData.get("nav_label") ?? "").trim();
@@ -134,6 +137,7 @@ export async function saveProject(
   const { error } = await supabase.from("projects").upsert({
     id,
     section,
+    published,
     position: Number.isFinite(position) ? position : 0,
     title,
     title_font: titleFont,

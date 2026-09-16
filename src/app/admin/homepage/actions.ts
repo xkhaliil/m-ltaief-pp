@@ -43,7 +43,13 @@ export async function saveHomepage(
   return { error: "", success: true };
 }
 
-type TileUpdate = { id: string; position: number; title: string; thumbnail_url: string | null };
+type TileUpdate = {
+  id: string;
+  position: number;
+  title: string;
+  thumbnail_url: string | null;
+  published: boolean;
+};
 
 function parseTiles(formData: FormData): TileUpdate[] | null {
   const raw = formData.get("tiles");
@@ -51,10 +57,19 @@ function parseTiles(formData: FormData): TileUpdate[] | null {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return null;
-    return parsed.filter(
-      (t): t is TileUpdate =>
-        t && typeof t.id === "string" && typeof t.position === "number" && typeof t.title === "string",
-    );
+    return parsed
+      .filter(
+        (t) =>
+          t && typeof t.id === "string" && typeof t.position === "number" && typeof t.title === "string",
+      )
+      .map(
+        (t): TileUpdate => ({
+          ...t,
+          // A tile submitted without the flag (an older client, a stale
+          // page) is left online rather than silently disappearing.
+          published: t.published !== false,
+        }),
+      );
   } catch {
     return null;
   }
@@ -78,6 +93,7 @@ export async function saveMainTiles(
           position: tile.position,
           title: tile.title.trim(),
           thumbnail_url: tile.thumbnail_url,
+          published: tile.published,
         })
         .eq("id", tile.id),
     ),

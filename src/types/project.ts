@@ -41,6 +41,12 @@ export type ContentRow = {
 export type Project = {
   id: string;
   section: ProjectSection;
+  // Online/offline switch. Offline projects stay fully intact in the
+  // database and in /admin, but are filtered out of the public site — the
+  // reversible alternative to deleting a project. Optional here because
+  // rows written before the column existed come back without it; treat a
+  // missing value as online (see isPublished()).
+  published?: boolean;
   position: number;
   title: string;
   title_font: TextFont;

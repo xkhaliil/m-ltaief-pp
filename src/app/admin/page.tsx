@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Project, ProjectSection } from "@/types/project";
-import { deleteProject } from "./actions";
+import { isPublished } from "@/lib/project-visibility";
+import { deleteProject, setProjectPublished } from "./actions";
 import { DeleteButton } from "./DeleteButton";
+import { PublishToggle } from "./PublishToggle";
 import { AdminHeader } from "./AdminHeader";
 
 export const dynamic = "force-dynamic";
@@ -89,31 +91,42 @@ export default async function AdminDashboard() {
                   {SECTION_LABELS[section]}
                 </h2>
                 <ul className="divide-y divide-slate-100">
-                  {items.map((project) => (
-                    <li
-                      key={project.id}
-                      className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <Link
-                        href={`/admin/projects/${project.id}`}
-                        className="min-w-0 truncate text-sm text-slate-900 dark:text-slate-100 hover:text-slate-600 dark:hover:text-slate-400 transition-colors"
+                  {items.map((project) => {
+                    const online = isPublished(project);
+                    return (
+                      <li
+                        key={project.id}
+                        className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                       >
-                        {project.title}
-                      </Link>
-                      <div className="flex shrink-0 items-center gap-4 text-xs font-medium">
                         <Link
                           href={`/admin/projects/${project.id}`}
-                          className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                          className={`min-w-0 truncate text-sm transition-colors hover:text-slate-600 dark:hover:text-slate-400 ${
+                            online
+                              ? "text-slate-900 dark:text-slate-100"
+                              : "text-slate-400 dark:text-slate-500 line-through decoration-slate-300 dark:decoration-slate-600"
+                          }`}
                         >
-                          Edit
+                          {project.title}
                         </Link>
-                        <DeleteButton
-                          action={deleteProject.bind(null, project.id)}
-                          label={project.title}
-                        />
-                      </div>
-                    </li>
-                  ))}
+                        <div className="flex shrink-0 items-center gap-4 text-xs font-medium">
+                          <PublishToggle
+                            published={online}
+                            onToggle={setProjectPublished.bind(null, project.id)}
+                          />
+                          <Link
+                            href={`/admin/projects/${project.id}`}
+                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                          >
+                            Edit
+                          </Link>
+                          <DeleteButton
+                            action={deleteProject.bind(null, project.id)}
+                            label={project.title}
+                          />
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             );

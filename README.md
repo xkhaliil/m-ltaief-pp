@@ -42,3 +42,4 @@ whatever host you prefer. Set `NEXT_PUBLIC_SUPABASE_URL` and
 | `supabase/seed.sql` | The site's existing projects, as insertable SQL |
 | `supabase/migrations/0002_profile.sql` | `profile` table schema (bio + About/CV lists) |
 | `supabase/seed_about.sql` | The site's existing bio and CV entries, as insertable SQL |
+| `supabase/migrations/0011_project_published.sql` | `published` flag — the Online / Offline switch in `/admin` |
