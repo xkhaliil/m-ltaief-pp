@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { SmoothScroll } from "@/components/SmoothScroll";
 // import { SplashGate } from "@/components/SplashGate"; // boot splash — disabled for now, re-enable later
 import "./globals.css";
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SmoothScroll />
         {/* <SplashGate>{children}</SplashGate> */}
         {children}
+        <Analytics />
       </body>
     </html>
   );
